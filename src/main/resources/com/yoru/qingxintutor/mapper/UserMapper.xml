@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.UserMapper">
+    <!-- 表名 -->
+    <sql id="tableName">
+        user
+    </sql>
+
+    <!-- 所有字段（用于 SELECT） -->
+    <sql id="allColumns">
+        id,
+        username,
+        nickname,
+        email,
+        icon,
+        address,
+        passwd_hash,
+        create_time,
+        update_time
+    </sql>
+
+    <resultMap id="UserResultMap" type="com.yoru.qingxintutor.pojo.entity.UserEntity">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
+        <result property="email" column="email"/>
+        <result property="icon" column="icon"/>
+        <result property="address" column="address"/>
+        <result property="passwdHash" column="passwd_hash"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 查询单个 -->
+    <select id="findById" resultMap="UserResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE username = #{username}
+    </select>
+
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE email = #{email}
+    </select>
+
+    <!-- 查询全部 -->
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 模糊搜索 -->
+    <select id="searchByUsername" resultMap="UserResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE username LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <!-- 插入 -->
+    <insert id="insert" parameterType="com.yoru.qingxintutor.pojo.entity.UserEntity">
+        INSERT INTO
+        <include refid="tableName"/>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                id,
+            </if>
+            <if test="username != null and username != ''">
+                username,
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname,
+            </if>
+            <if test="email != null and email != ''">
+                email,
+            </if>
+            <if test="icon != null">
+                icon,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="passwdHash != null and passwdHash != ''">
+                passwd_hash,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                #{id},
+            </if>
+            <if test="username != null and username != ''">
+                #{username},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                #{nickname},
+            </if>
+            <if test="email != null and email != ''">
+                #{email},
+            </if>
+            <if test="icon != null">
+                #{icon},
+            </if>
+            <if test="address != null">
+                #{address},
+            </if>
+            <if test="passwdHash != null and passwdHash != ''">
+                #{passwdHash},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.yoru.qingxintutor.pojo.entity.UserEntity">
+        UPDATE
+        <include refid="tableName"/>
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新密码 -->
+    <update id="updatePassword">
+        UPDATE
+        <include refid="tableName"/>
+        SET
+        passwd_hash = #{passwdHash},
+        update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查询是否存在 -->
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM user WHERE id = #{id})
+    </select>
+</mapper>
