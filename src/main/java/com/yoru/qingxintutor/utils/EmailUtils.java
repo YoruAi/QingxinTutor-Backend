@@ -54,6 +54,22 @@ public class EmailUtils {
         sendHtml(to, subject, html);
     }
 
+    /**
+     * 发送注册成功通知邮件
+     */
+    @Async
+    public void sendRegisterSuccess(String to, String username) {
+        String subject = "【Qingxin Tutor】欢迎加入！注册成功";
+        String html = buildRegisterSuccessHtml(username);
+        sendHtml(to, subject, html);
+    }
+
+    private String buildRegisterSuccessHtml(String username) {
+        Context context = new Context();
+        context.setVariable("username", username);
+        return templateEngine.process("email/register-success", context);
+    }
+
     private String buildHtml(String templateName, String code) {
         Context context = new Context();
         context.setVariable("code", code);

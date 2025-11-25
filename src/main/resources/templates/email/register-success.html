@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <title>注册成功</title>
+</head>
+<body style="margin:0; padding:0; font-family:Arial,sans-serif; background:#f5f7fa;">
+<div style="max-width:600px; margin:40px auto; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+    <div style="padding:30px 40px 20px; text-align:center; border-bottom:1px solid #eee;">
+        <h2 style="color:#333; margin:0;">QingxinTutor</h2>
+        <p style="color:#666; margin-top:8px;">专注学习，用心陪伴</p>
+    </div>
+    <div style="padding:30px 40px;">
+        <p style="font-size:16px; color:#333;">
+            尊敬的 <span th:text="${username}">用户</span> ，您好！<br><br>
+            您的账号已成功注册，感谢您加入 QingxinTutor！
+        </p>
+        <div style="text-align:center; margin:25px 0;">
+            <div style="font-size:24px; font-weight:bold; color:#079a0d; background:#ccf8cf; 
+            padding:16px; border-radius:8px; display:inline-block;">
+                注 册 成 功 !
+            </div>
+        </div>
+        <p style="font-size:14px; color:#666;">
+            🎉 现在您可以使用邮箱和密码登录平台，开启高效学习之旅。<br>
+            💡 如有任何问题，请随时联系客服。
+        </p>
+        <p style="font-size:14px; color:#999; margin-top:20px;">
+            再次欢迎您的加入！
+        </p>
+    </div>
+    <div style="padding:20px 40px; text-align:center; border-top:1px solid #f0f0f0; color:#999; font-size:12px;">
+        <p>QingxinTutor.yoru.com</p>
+        <p>此为系统自动发送邮件，请勿回复。</p>
+    </div>
+</div>
+</body>
+</html>

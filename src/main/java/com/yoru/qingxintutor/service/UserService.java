@@ -7,6 +7,7 @@ import com.yoru.qingxintutor.pojo.dto.request.UserRegisterRequest;
 import com.yoru.qingxintutor.pojo.dto.request.UserResetPasswordRequest;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.result.UserAuthResult;
+import com.yoru.qingxintutor.utils.EmailUtils;
 import com.yoru.qingxintutor.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class UserService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EmailUtils emailUtils;
 
     @Autowired
     private VerificationCodeService verificationCodeService;
@@ -65,6 +69,8 @@ public class UserService {
         String token = jwtUtil.generateToken(user.getId());
 
         // 4. （可选）发送欢迎邮件、初始化学习计划等...
+        // 注册邮件
+        emailUtils.sendRegisterSuccess(user.getEmail(), user.getUsername());
 
         return UserAuthResult.builder()
                 .token(token)
