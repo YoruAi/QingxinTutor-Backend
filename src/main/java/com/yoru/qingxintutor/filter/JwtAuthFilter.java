@@ -39,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 String token = authHeader.substring(7);
                 String userId = jwtUtil.getUserIdFromToken(token);
-                if (userMapper.existsById(userId)) {
+                if (!userMapper.existsById(userId)) {
                     throw new BusinessException("Unauthorized");
                 }
 

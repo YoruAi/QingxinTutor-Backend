@@ -20,7 +20,7 @@ public @interface ValidTimestamp {
 
     Class<? extends Payload>[] payload() default {};
 
-    long maxOffsetMillis() default 5000;    // 5秒
+    long maxOffsetMillis() default 1000;    // 1秒
 }
 
 class TimestampValidator implements ConstraintValidator<ValidTimestamp, Instant> {
