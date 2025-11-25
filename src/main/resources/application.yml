@@ -1,0 +1,42 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: QingxinTutor
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/db_qingxin_tutor
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  mail:
+    host: smtp.163.com
+    port: 465
+    username: yoruai@163.com
+    password: ${MAIL_SMTP_SECRET}
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+            port: 465
+          auth: true
+          starttls:
+            enable: true
+        default-encoding: UTF-8
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+  jackson:
+    deserialization:
+      read-date-timestamps-as-nanoseconds: false
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 604800000  # ms
+  upload:
+    file-dir: ${UPLOAD_BASE_DIR}/QingxinTutor
