@@ -4,14 +4,19 @@ import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
 import com.yoru.qingxintutor.pojo.dto.request.UserUpdateRequest;
+import com.yoru.qingxintutor.pojo.result.NotificationInfoResult;
 import com.yoru.qingxintutor.pojo.result.UserInfoResult;
 import com.yoru.qingxintutor.service.AvatarService;
+import com.yoru.qingxintutor.service.NotificationService;
 import com.yoru.qingxintutor.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -49,24 +54,57 @@ public class UserController {
     }
 
 
-    // reviews(reviewService), forum_messages, feedback //
+    // feedback, forum_message, review, study_plan, notification //
     /*
-    GET    /api/user/reviews
-    POST   /api/user/reviews
-    PUT    /api/user/reviews    -- 教师评论可更新
+    GET    /api/user/feedbacks
+    GET    /api/user/feedback/:id
+     */
+    
+    /*
     GET    /api/user/forum-messages
-    POST   /api/user/forum-messages
-    GET    /api/user/feedback
-    POST   /api/user/feedback
-     */
+    GET    /api/user/forum-message/:id
+    */
 
-    // notifications
     /*
-    GET    /api/user/notifications
-    PATCH  /api/user/notifications/{id}/read
+    GET     /api/user/reviews
+    GET     /api/user/review/:id
+    */
+    
+    /*
+    GET    /api/user/study_plans?subjectName=数学
+    GET    /api/user/study_plan/:id
      */
 
-    // wallet, order, voucher, study_plan, reservation
+    /*
+    GET    /api/user/notifications/global
+    GET    /api/user/notifications/personal
+    GET    /api/user/notification/:id
+     */
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @GetMapping("/notifications/global")
+    public ApiResult<List<NotificationInfoResult>> getGlobalNotifications() {
+        return ApiResult.success(notificationService.listGlobalNotifications());
+    }
+
+    @GetMapping("/notifications/personal")
+    public ApiResult<List<NotificationInfoResult>> getPersonalNotifications(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResult.success(notificationService.listPersonalNotifications(userDetails.getUser().getId()));
+    }
+
+    @GetMapping("/notification/{id}")
+    public ApiResult<?> getNotificationById(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @PathVariable("id")
+                                            @Min(value = 1, message = "Id must be a positive number")
+                                            Long id)
+            throws BusinessException {
+        return ApiResult.success(notificationService.findById(userDetails.getUser().getId(), id));
+    }
+
+
+    // wallet, order, voucher, reservation //
     /*
     GET    /api/user/wallet
     GET    /api/user/orders

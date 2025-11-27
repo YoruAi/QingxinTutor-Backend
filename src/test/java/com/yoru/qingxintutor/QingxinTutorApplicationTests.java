@@ -2,6 +2,7 @@ package com.yoru.qingxintutor;
 
 import com.yoru.qingxintutor.mapper.UserMapper;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
+import com.yoru.qingxintutor.service.NotificationService;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,19 @@ class QingxinTutorApplicationTests {
                         .createTime(now)
                         .updateTime(now)
                         .build()
+        );
+    }
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Test
+    void insertNotification() {
+        notificationService.createPersonalNotification("9ee3f9ff-76f7-4f4b-994e-2e24e6bf1079",
+                "Welcome to Qingxin Tutor App",
+                "Hello teacher " + "王宏" +
+                        ". Now, you can manage your reservation and post in the forum! " +
+                        "Remember to complete your personal information as quickly as you can."
         );
     }
 

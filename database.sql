@@ -173,7 +173,6 @@ CREATE TABLE app_feedback
     title       VARCHAR(100) NOT NULL,
     content     TEXT         NOT NULL,
     create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_user_create (user_id, create_time),
     INDEX idx_user_id (user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -209,7 +208,6 @@ CREATE TABLE notification
     title       VARCHAR(100) NOT NULL,
     content     TEXT         NOT NULL,
     create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_title_create (title, create_time),
     INDEX idx_user_id (user_id),
     INDEX idx_create_time (create_time)
 ) ENGINE = InnoDB

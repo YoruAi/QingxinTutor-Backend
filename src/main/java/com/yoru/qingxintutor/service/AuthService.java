@@ -54,6 +54,9 @@ public class AuthService {
     @Autowired
     private VerificationCodeService verificationCodeService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Transactional
     public UserAuthResult registerStudent(UserRegisterRequest request) throws BusinessException {
         // 0. 校验
@@ -85,9 +88,14 @@ public class AuthService {
         // 3. 生成 JWT 令牌（通常包含用户ID）
         String token = jwtUtils.generateToken(user.getId());
 
-        // 4. （可选）发送欢迎邮件、初始化学习计划等...
-        // 注册邮件
+        // 注册邮件与欢迎通知
         emailUtils.sendRegisterSuccess(user.getEmail(), user.getUsername());
+        notificationService.createPersonalNotification(user.getId(),
+                "Welcome to Qingxin Tutor App",
+                "Hello user " + user.getUsername() +
+                        ". Now, you can search for excellent teachers and send reservation! " +
+                        "Remember to complete your personal information as quickly as you can."
+        );
 
         return UserAuthResult.builder()
                 .token(token)
@@ -160,9 +168,14 @@ public class AuthService {
         // 3. 生成 JWT 令牌（通常包含用户ID）
         String token = jwtUtils.generateToken(user.getId());
 
-        // 4. （可选）发送欢迎邮件、初始化等...
-        // 注册邮件
+        // 注册邮件与欢迎通知
         emailUtils.sendRegisterSuccess(user.getEmail(), user.getUsername());
+        notificationService.createPersonalNotification(user.getId(),
+                "Welcome to Qingxin Tutor App",
+                "Hello teacher " + user.getUsername() +
+                        ". Now, you can manage your reservation and post in the forum! " +
+                        "Remember to complete your personal information as quickly as you can."
+        );
 
         return UserAuthResult.builder()
                 .token(token)

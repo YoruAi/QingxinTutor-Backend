@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.NotificationMapper">
+    <sql id="tableName">
+        notification
+    </sql>
+
+    <sql id="allColumns">
+        id,
+        user_id,
+        title,
+        content,
+        create_time
+    </sql>
+
+    <resultMap id="NotificationResultMap" type="com.yoru.qingxintutor.pojo.entity.NotificationEntity">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findById" resultMap="NotificationResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </select>
+
+    <!-- 全站通知（user_id IS NULL） -->
+    <select id="findGlobalNotifications" resultMap="NotificationResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id IS NULL
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 用户定向通知 -->
+    <select id="findByUserId" resultMap="NotificationResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 所有通知（含全局+个人），用于后台管理 -->
+    <select id="findAll" resultMap="NotificationResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="tableName"/>
+        (user_id, title, content)
+        VALUES (#{userId}, #{title}, #{content})
+    </insert>
+
+    <!-- 删除通知（按 ID） -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </delete>
+</mapper>
