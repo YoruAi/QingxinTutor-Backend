@@ -223,9 +223,9 @@ public class AuthService {
 
     public void resetPassword(UserResetPasswordRequest request) throws BusinessException {
         // 0. 校验
-        UserEntity user = userMapper.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException("Invalid username/email or password"));
         verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
+        UserEntity user = userMapper.findByEmail(request.getEmail())
+                .orElseThrow(() -> new BusinessException("Invalid email or password"));
 
         // 1. 禁止新密码与旧密码相同
         if (passwordEncoder.matches(request.getNewPassword(), user.getPasswdHash())) {
