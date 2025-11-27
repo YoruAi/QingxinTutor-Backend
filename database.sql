@@ -86,15 +86,17 @@ CREATE TABLE user_wallet
 -- 7. user_order 用户订单表
 CREATE TABLE user_order
 (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id     CHAR(36)                              NOT NULL,
-    item        VARCHAR(100)                          NOT NULL,
-    quantity    INT                                   NOT NULL DEFAULT 1,
-    price       DECIMAL(10, 2)                        NOT NULL DEFAULT 0.00,
-    state       ENUM ('PENDING', 'PAID', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
-    create_time DATETIME                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id             BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id        CHAR(36)                              NOT NULL,
+    reservation_id BIGINT                                NOT NULL, -- 关联的预约课程
+    item           VARCHAR(100)                          NOT NULL,
+    quantity       INT                                   NOT NULL DEFAULT 1,
+    price          DECIMAL(10, 2)                        NOT NULL DEFAULT 0.00,
+    state          ENUM ('PENDING', 'PAID', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    create_time    DATETIME                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uk_user_create (user_id, create_time),
-    INDEX idx_user_id (user_id)
+    INDEX idx_user_id (user_id),
+    INDEX idx_reservation_id (reservation_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -129,7 +131,7 @@ CREATE TABLE user_study_plan
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- 10. reservation 预约表
+-- 10. reservation 预约课程表
 CREATE TABLE reservation
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
