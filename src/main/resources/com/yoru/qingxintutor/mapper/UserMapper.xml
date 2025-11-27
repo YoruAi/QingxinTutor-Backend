@@ -160,17 +160,11 @@
             <if test="nickname != null and nickname != ''">
                 nickname = #{nickname},
             </if>
-            <if test="email != null and email != ''">
-                email = #{email},
-            </if>
             <if test="icon != null">
                 icon = #{icon},
             </if>
             <if test="address != null">
                 address = #{address},
-            </if>
-            <if test="updateTime != null">
-                update_time = #{updateTime},
             </if>
         </set>
         WHERE id = #{id}
