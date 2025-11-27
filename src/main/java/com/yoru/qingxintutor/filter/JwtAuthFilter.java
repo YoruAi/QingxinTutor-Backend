@@ -39,12 +39,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 String token = authHeader.substring(7);
                 String userId = jwtUtil.getUserIdFromToken(token);
-                if (!userMapper.existsById(userId)) {
-                    throw new BusinessException("Unauthorized");
-                }
-
                 // 构建认证对象 (@AuthenticationPrincipal CustomUserDetails userDetails)
-                UserEntity user = userMapper.findById(userId).orElseThrow();
+                UserEntity user = userMapper.findById(userId).orElseThrow(() -> new BusinessException("Unauthorized"));
                 CustomUserDetails userDetails = new CustomUserDetails(user);
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
