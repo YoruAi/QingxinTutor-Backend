@@ -9,7 +9,7 @@ CREATE TABLE user
     username    VARCHAR(50)                 NOT NULL UNIQUE,
     nickname    VARCHAR(50),
     email       VARCHAR(100)                NOT NULL UNIQUE,
-    icon        VARCHAR(255),                         -- should starts with "avatar/"
+    icon        VARCHAR(255),                         -- should starts with "/avatar/"
     address     VARCHAR(255),
     passwd_hash VARCHAR(255)                NOT NULL, -- hashed
     role        ENUM ('STUDENT', 'TEACHER') NOT NULL DEFAULT 'STUDENT',
@@ -40,7 +40,7 @@ CREATE TABLE teacher
     name                VARCHAR(50)             NOT NULL,
     gender              ENUM ('MALE', 'FEMALE') NOT NULL,
     birth_date          DATE                    NOT NULL,
-    icon                VARCHAR(255),
+    icon                VARCHAR(255), -- should starts with "/avatar/"
     address             VARCHAR(255),
     teaching_experience TEXT,
     description         TEXT,
