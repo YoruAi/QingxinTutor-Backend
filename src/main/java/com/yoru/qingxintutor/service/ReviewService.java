@@ -87,7 +87,7 @@ public class ReviewService {
         reviewMapper.deleteById(id);
     }
 
-    private ReviewInfoResult entityToResult(TeacherReviewEntity entity, String teacherName) {
+    private static ReviewInfoResult entityToResult(TeacherReviewEntity entity, String teacherName) {
         return ReviewInfoResult.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())

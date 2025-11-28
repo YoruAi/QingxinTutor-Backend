@@ -83,7 +83,7 @@ public class ForumMessageService {
         return entityToResult(forumMessage, forumName, username);
     }
 
-    private ForumMessageInfoResult entityToResult(ForumMessageEntity entity, String forumName, String username) {
+    private static ForumMessageInfoResult entityToResult(ForumMessageEntity entity, String forumName, String username) {
         return ForumMessageInfoResult.builder()
                 .id(entity.getId())
                 .forumId(entity.getForumId())
