@@ -16,23 +16,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class StudyPlanCreateRequest {
-    @NotBlank
+    @NotBlank(message = "SubjectName is required")
     @Size(max = 50, message = "SubjectName must be between 1 and 50 characters")
     private String subjectName;
 
-    @NotBlank
+    @NotBlank(message = "SubjectName is required")
     @Size(max = 100, message = "SubjectName must be between 1 and 100 characters")
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "SubjectName is required")
     @Size(max = 255, message = "SubjectName must be between 1 and 255 characters")
     private String content;
 
-    @NotNull
+    @NotNull(message = "TargetCompletionTime is required")
     @Future(message = "TargetCompletionTime must be in the future")
     private LocalDateTime targetCompletionTime;
 
-    @NotNull
+    @NotNull(message = "ReminderTime is required")
     @Future(message = "ReminderTime must be in the future")
     private LocalDateTime reminderTime;
 }
