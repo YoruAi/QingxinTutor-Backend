@@ -47,6 +47,16 @@ public class TeacherService {
     }
 
     /**
+     * 根据teacher_id查询该教师名
+     */
+    public String getNameById(Long id) throws BusinessException {
+        Optional<String> teacherName = teacherMapper.findNameById(id);
+        if (teacherName.isEmpty())
+            throw new BusinessException("Teacher not found");
+        return teacherName.get();
+    }
+
+    /**
      * 根据user_id更新该教师信息
      */
     @Transactional

@@ -5,6 +5,7 @@ import com.yoru.qingxintutor.mapper.TeacherReviewMapper;
 import com.yoru.qingxintutor.pojo.dto.request.ReviewCreateRequest;
 import com.yoru.qingxintutor.pojo.dto.request.ReviewUpdateRequest;
 import com.yoru.qingxintutor.pojo.entity.TeacherReviewEntity;
+import com.yoru.qingxintutor.pojo.result.ReviewInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,21 +18,28 @@ public class ReviewService {
 
     @Autowired
     private TeacherReviewMapper reviewMapper;
+    @Autowired
+    private TeacherService teacherService;
 
-    public List<TeacherReviewEntity> listAllByUserId(String userId) {
-        return reviewMapper.findByUserId(userId);
+    public List<ReviewInfoResult> listAllByUserId(String userId) {
+        return reviewMapper.findByUserId(userId)
+                .stream()
+                .map(entity -> entityToResult(entity, teacherService.getNameById(entity.getTeacherId())))
+                .toList();
     }
 
-    public TeacherReviewEntity findById(String userId, Long id) {
+    public ReviewInfoResult findById(String userId, Long id) {
         TeacherReviewEntity review = reviewMapper.findById(id)
                 .orElseThrow(() -> new BusinessException("Review not found"));
         if (!userId.equals(review.getUserId()))
             throw new BusinessException("Review not found");
-        return review;
+        return entityToResult(review, teacherService.getNameById(review.getTeacherId()));
     }
 
     @Transactional
-    public TeacherReviewEntity create(String userId, ReviewCreateRequest request) {
+    public ReviewInfoResult create(String userId, ReviewCreateRequest request) {
+        String teacherName = teacherService.getNameById(request.getTeacherId());
+
         // 检查是否已存在对该教师的评价（唯一性约束）
         if (reviewMapper.findByUserIdAndTeacherId(userId, request.getTeacherId()).isPresent()) {
             throw new BusinessException("Teacher has been rated by you");
@@ -48,10 +56,10 @@ public class ReviewService {
                 .build();
         reviewMapper.insert(entity);
 
-        return entity;
+        return entityToResult(entity, teacherName);
     }
 
-    public TeacherReviewEntity update(String userId, Long id, ReviewUpdateRequest request) {
+    public ReviewInfoResult update(String userId, Long id, ReviewUpdateRequest request) {
         TeacherReviewEntity review = reviewMapper.findById(id)
                 .orElseThrow(() -> new BusinessException("Review not found"));
         if (!userId.equals(review.getUserId()))
@@ -66,8 +74,9 @@ public class ReviewService {
                 .build();
         reviewMapper.update(entity);
 
-        return reviewMapper.findById(id)
+        review = reviewMapper.findById(id)
                 .orElseThrow(() -> new BusinessException("Review not found"));
+        return entityToResult(review, teacherService.getNameById(review.getTeacherId()));
     }
 
     public void deleteById(String userId, Long id) {
@@ -76,5 +85,18 @@ public class ReviewService {
         if (!userId.equals(review.getUserId()))
             throw new BusinessException("Review not found");
         reviewMapper.deleteById(id);
+    }
+
+    private ReviewInfoResult entityToResult(TeacherReviewEntity entity, String teacherName) {
+        return ReviewInfoResult.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .teacherId(entity.getTeacherId())
+                .teacherName(teacherName)
+                .rating(entity.getRating())
+                .title(entity.getTitle())
+                .content(entity.getContent())
+                .createTime(entity.getCreateTime())
+                .build();
     }
 }

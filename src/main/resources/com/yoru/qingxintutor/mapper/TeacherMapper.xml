@@ -26,6 +26,14 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <!-- findNameById -->
+    <select id="findNameById" resultType="string">
+        SELECT
+        name
+        FROM teacher t
+        WHERE t.id = #{id}
+    </select>
+
     <!-- 插入 -->
     <insert id="insert" parameterType="com.yoru.qingxintutor.pojo.entity.TeacherEntity"
             useGeneratedKeys="true" keyProperty="id">
