@@ -56,6 +56,21 @@ public class UserController {
     GET    /api/user/feedbacks
     GET    /api/user/feedback/:id
      */
+    @Autowired
+    private FeedbackService feedbackService;
+
+    @GetMapping("/feedbacks")
+    public ApiResult<List<FeedbackInfoResult>> getFeedbacks(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResult.success(feedbackService.listAllByUserId(userDetails.getUser().getId()));
+    }
+
+    @GetMapping("/feedback/{id}")
+    public ApiResult<FeedbackInfoResult> getFeedback(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                     @PathVariable
+                                                     @Min(value = 1, message = "Id must be a positive number")
+                                                     Long id) {
+        return ApiResult.success(feedbackService.findById(userDetails.getUser().getId(), id));
+    }
 
     /*
     GET    /api/user/forum-messages

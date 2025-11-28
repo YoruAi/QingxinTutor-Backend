@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.AppFeedbackMapper">
+    <sql id="tableName">
+        app_feedback
+    </sql>
+
+    <sql id="allColumns">
+        id,
+        user_id,
+        title,
+        content,
+        create_time
+    </sql>
+
+    <resultMap id="AppFeedbackResultMap" type="com.yoru.qingxintutor.pojo.entity.AppFeedbackEntity">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findById" resultMap="AppFeedbackResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByUserId" resultMap="AppFeedbackResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="findAll" resultMap="AppFeedbackResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="tableName"/>
+        (user_id, title, content
+        <if test="createTime != null">
+            , create_time
+        </if>
+        )
+        VALUES (#{userId}, #{title}, #{content}
+        <if test="createTime != null">
+            , #{createTime}
+        </if>
+        )
+    </insert>
+</mapper>
