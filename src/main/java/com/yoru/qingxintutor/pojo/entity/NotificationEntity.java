@@ -18,6 +18,5 @@ public class NotificationEntity {
     private String userId;          // CHAR(36), REFERENCES user(id); NULL 表示全站通知
     private String title;           // VARCHAR(100) NOT NULL
     private String content;         // TEXT NOT NULL
-    @JsonIgnore
     private LocalDateTime createTime;
 }

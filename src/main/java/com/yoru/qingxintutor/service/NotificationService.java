@@ -59,6 +59,7 @@ public class NotificationService {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
+                .createTime(entity.getCreateTime())
                 .build();
     }
 }
