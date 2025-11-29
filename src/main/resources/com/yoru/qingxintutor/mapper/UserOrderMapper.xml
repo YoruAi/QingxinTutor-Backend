@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.UserOrderMapper">
+    <sql id="tableName">
+        user_order
+    </sql>
+
+    <sql id="allColumns">
+        id,
+        user_id,
+        reservation_id,
+        item,
+        quantity,
+        price,
+        state,
+        create_time
+    </sql>
+
+    <resultMap id="UserOrderResultMap" type="com.yoru.qingxintutor.pojo.entity.UserOrderEntity">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="reservationId" column="reservation_id"/>
+        <result property="item" column="item"/>
+        <result property="quantity" column="quantity"/>
+        <result property="price" column="price"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findByIdAndUserId" resultMap="UserOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByIdAndTeacherId" resultMap="UserOrderResultMap">
+        SELECT
+        o.id,
+        o.user_id,
+        o.reservation_id,
+        o.item,
+        o.quantity,
+        o.price,
+        o.state,
+        o.create_time
+        FROM user_order o
+        INNER JOIN reservation r ON o.reservation_id = r.id
+        WHERE o.id = #{orderId}
+        AND r.teacher_id = #{teacherId}
+    </select>
+
+    <select id="findByUserId" resultMap="UserOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="findByUserIdAndState" resultMap="UserOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId} AND state = #{state}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据预约ID查询订单 -->
+    <select id="findByReservationId" resultMap="UserOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE reservation_id = #{reservationId}
+    </select>
+
+    <!-- 根据用户ID和预约ID查询 -->
+    <select id="findByUserIdAndReservationId" resultMap="UserOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId} AND reservation_id = #{reservationId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="tableName"/>
+        (user_id, reservation_id, item, quantity, price, state)
+        VALUES (#{userId}, #{reservationId}, #{item}, #{quantity}, #{price}, #{state})
+    </insert>
+
+    <update id="updateState">
+        UPDATE
+        <include refid="tableName"/>
+        SET state = #{state}
+        WHERE id = #{id}
+    </update>
+
+    <!-- （定时）批量更新待支付订单为已取消（超时15分钟） -->
+    <update id="cancelExpiredPendingOrders">
+        UPDATE
+        <include refid="tableName"/>
+        SET state = 'CANCELLED'
+        WHERE state = 'PENDING'
+        AND create_time &lt;= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+    </update>
+
+    <select id="areAllOrdersPaid" resultType="boolean">
+        SELECT NOT EXISTS (
+        SELECT 1 FROM user_order
+        WHERE reservation_id = #{reservationId}
+        AND state != 'PAID'
+        )
+    </select>
+</mapper>
