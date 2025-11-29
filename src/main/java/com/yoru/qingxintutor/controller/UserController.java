@@ -148,17 +148,4 @@ public class UserController {
                                                            Long id) {
         return ApiResult.success(studyPlanService.findById(userDetails.getUser().getId(), id));
     }
-
-
-    // wallet, order, voucher, reservation //
-    /*
-    GET    /api/user/wallet
-    GET    /api/user/orders
-    GET    /api/user/vouchers
-    GET    /api/user/reservations
-    
-    GET    /api/user/study-plans
-    POST   /api/user/study-plans
-    PUT    /api/user/study-plans/{id}  -- update
-     */
 }

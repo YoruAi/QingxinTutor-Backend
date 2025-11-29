@@ -57,6 +57,9 @@ public class AuthService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private WalletService walletService;
+
     @Transactional
     public UserAuthResult registerStudent(UserRegisterRequest request) throws BusinessException {
         // 0. 校验
@@ -83,7 +86,7 @@ public class AuthService {
         request.setPassword(null);
 
         // 2. 创建钱包（核心附属数据）
-        // TODO: 用户创建附属数据
+        walletService.create(user.getId());
 
         // 3. 生成 JWT 令牌（通常包含用户ID）
         String token = jwtUtils.generateToken(user.getId());
