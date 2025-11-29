@@ -35,7 +35,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/wallet/mock-pay").permitAll()
+                        .requestMatchers("/api/wallet/callback").permitAll()
                         .requestMatchers("/file/**").permitAll()
+                        .requestMatchers("/pay-success.html").permitAll()
+                        .requestMatchers("/pay-fail.html").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/**").authenticated() // 其他api需认证
                         .anyRequest().denyAll() // 其他不放行

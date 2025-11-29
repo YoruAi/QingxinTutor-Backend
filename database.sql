@@ -213,6 +213,19 @@ CREATE TABLE notification
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+-- 16. wallet_recharge_order 支付订单表
+CREATE TABLE wallet_recharge_order
+(
+    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id       CHAR(36)                              NOT NULL,
+    out_trade_no  VARCHAR(64)                           NOT NULL UNIQUE, -- 生成的订单号
+    amount        DECIMAL(12, 2)                        NOT NULL,
+    state         ENUM ('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
+    create_time   DATETIME                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    complete_time DATETIME,
+    INDEX idx_user_id (user_id),
+    INDEX idx_out_trade_no (out_trade_no)
+) ENGINE = InnoDB;
 
 
 -- DANGEROUS ZONE --

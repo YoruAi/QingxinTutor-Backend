@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.WalletRechargeOrderMapper">
+    <sql id="tableName">
+        wallet_recharge_order
+    </sql>
+
+    <sql id="allColumns">
+        id,
+        user_id,
+        out_trade_no,
+        amount,
+        state,
+        create_time,
+        complete_time
+    </sql>
+
+    <resultMap id="WalletRechargeOrderResultMap" type="com.yoru.qingxintutor.pojo.entity.WalletRechargeOrderEntity">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="outTradeNo" column="out_trade_no"/>
+        <result property="amount" column="amount"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="completeTime" column="complete_time"/>
+    </resultMap>
+
+    <select id="findById" resultMap="WalletRechargeOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByOutTradeNo" resultMap="WalletRechargeOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE out_trade_no = #{outTradeNo}
+    </select>
+
+    <select id="findByUserId" resultMap="WalletRechargeOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="findPendingOrderByOutTradeNo" resultMap="WalletRechargeOrderResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE out_trade_no = #{outTradeNo}
+        AND state = 'PENDING'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="tableName"/>
+        (user_id, out_trade_no, amount, state
+        <if test="createTime != null">
+            , create_time
+        </if>
+        )
+        VALUES (#{userId}, #{outTradeNo}, #{amount}, #{state}
+        <if test="createTime != null">
+            , #{createTime}
+        </if>
+        )
+    </insert>
+
+    <!-- 更新订单状态为成功 -->
+    <update id="markAsSuccess">
+        UPDATE
+        <include refid="tableName"/>
+        SET state = 'SUCCESS',
+        complete_time = CURRENT_TIMESTAMP
+        WHERE out_trade_no = #{outTradeNo}
+        AND state = 'PENDING'
+    </update>
+
+    <!-- 更新订单状态为失败 -->
+    <update id="markAsFailed">
+        UPDATE
+        <include refid="tableName"/>
+        SET state = 'FAILED',
+        complete_time = CURRENT_TIMESTAMP
+        WHERE out_trade_no = #{outTradeNo}
+        AND state = 'PENDING'
+    </update>
+</mapper>

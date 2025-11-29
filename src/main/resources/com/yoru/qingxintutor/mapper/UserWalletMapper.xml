@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.UserWalletMapper">
+    <sql id="tableName">
+        user_wallet
+    </sql>
+
+    <sql id="allColumns">
+        id,
+        user_id,
+        balance,
+        points,
+        create_time,
+        update_time
+    </sql>
+
+    <resultMap id="UserWalletResultMap" type="com.yoru.qingxintutor.pojo.entity.UserWalletEntity">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="balance" column="balance"/>
+        <result property="points" column="points"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="findByUserId" resultMap="UserWalletResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="tableName"/>
+        (user_id, balance, points)
+        VALUES (#{userId}, #{balance}, #{points})
+    </insert>
+
+    <!-- 原子操作：余额 -->
+    <update id="adjustBalance">
+        UPDATE
+        <include refid="tableName"/>
+        SET balance = balance + #{amount}, update_time = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+        AND balance + #{amount} >= 0
+    </update>
+
+    <!-- 原子操作：积分 -->
+    <update id="adjustPoints">
+        UPDATE
+        <include refid="tableName"/>
+        SET points = points + #{points}, update_time = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+        AND points + #{points} >= 0
+    </update>
+</mapper>
