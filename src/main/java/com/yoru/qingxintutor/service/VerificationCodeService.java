@@ -34,7 +34,7 @@ public class VerificationCodeService {
     private EmailUtils emailUtils;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void attemptVerifyCode(String email, String inputCode) throws BusinessException {
+    public void attemptVerifyCode(String email, String inputCode) {
         // 1. 查验证码记录
         EmailVerificationCodeEntity codeRecord = emailVerificationCodeMapper.selectByEmail(email)
                 .orElseThrow(() -> new BusinessException("Invalid or expired verification code"));
@@ -62,7 +62,7 @@ public class VerificationCodeService {
         emailVerificationCodeMapper.deleteByEmail(email);
     }
 
-    public void sendVerificationCode(String email, EmailPurpose purpose) throws BusinessException {
+    public void sendVerificationCode(String email, EmailPurpose purpose) {
         // 0. 注册用户必须未注册
         if (purpose == EmailPurpose.REGISTER && userMapper.findByEmail(email).isPresent()) {
             return;

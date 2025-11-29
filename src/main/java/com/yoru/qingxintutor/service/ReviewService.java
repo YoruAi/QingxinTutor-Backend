@@ -47,8 +47,7 @@ public class ReviewService {
     /**
      * 根据id查询该教师所有评论
      */
-    public PageInfo<TeacherReviewEntity> findReviewsByTeacherId(Long teacherId, Integer pageNum, Integer pageSize)
-            throws BusinessException {
+    public PageInfo<TeacherReviewEntity> findReviewsByTeacherId(Long teacherId, Integer pageNum, Integer pageSize) {
         if (!teacherMapper.existsById(teacherId))
             throw new BusinessException("Teacher not found");
         PageHelper.startPage(pageNum, pageSize);

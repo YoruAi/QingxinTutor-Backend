@@ -16,7 +16,7 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public void updateInfo(String id, UserUpdateRequest request) throws BusinessException {
+    public void updateInfo(String id, UserUpdateRequest request) {
         if (request.getUsername() != null) {
             Optional<UserEntity> user = userMapper.findByUsername(request.getUsername());
             if (user.isPresent() && !id.equals(user.get().getId())) {
@@ -32,7 +32,7 @@ public class UserService {
         userMapper.update(updateUser);
     }
 
-    public UserInfoResult getInfo(String id) throws BusinessException {
+    public UserInfoResult getInfo(String id) {
         UserEntity user = userMapper.findById(id).orElseThrow(() -> new BusinessException("User not found"));
         return UserInfoResult.builder()
                 .id(user.getId())

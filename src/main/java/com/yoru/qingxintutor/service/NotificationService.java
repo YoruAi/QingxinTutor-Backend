@@ -45,7 +45,7 @@ public class NotificationService {
                 .toList();
     }
 
-    public NotificationInfoResult findById(String userId, Long id) throws BusinessException {
+    public NotificationInfoResult findById(String userId, Long id) {
         NotificationEntity notification = notificationMapper.findById(id)
                 .orElseThrow(() -> new BusinessException("Notification not found"));
         if (notification.getUserId() != null && !userId.equals(notification.getUserId()))

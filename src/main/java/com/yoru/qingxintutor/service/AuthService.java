@@ -61,7 +61,7 @@ public class AuthService {
     private WalletService walletService;
 
     @Transactional
-    public UserAuthResult registerStudent(UserRegisterRequest request) throws BusinessException {
+    public UserAuthResult registerStudent(UserRegisterRequest request) {
         // 0. 校验
         verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
         if (userMapper.findByUsername(request.getUsername()).isPresent()) {
@@ -112,7 +112,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserAuthResult registerTeacher(TeacherRegisterRequest request) throws BusinessException {
+    public UserAuthResult registerTeacher(TeacherRegisterRequest request) {
         // 0. 校验
         verificationCodeService.attemptVerifyCode(request.getUserRegisterRequest().getEmail(),
                 request.getUserRegisterRequest().getCode());
@@ -191,7 +191,7 @@ public class AuthService {
                 .build();
     }
 
-    public UserAuthResult login(UserLoginRequest request) throws BusinessException {
+    public UserAuthResult login(UserLoginRequest request) {
         UserEntity user;
         // 方式1：用户名 + 密码
         if (StringUtils.hasText(request.getUsername())) {
@@ -237,7 +237,7 @@ public class AuthService {
                 .build();
     }
 
-    public void resetPassword(UserResetPasswordRequest request) throws BusinessException {
+    public void resetPassword(UserResetPasswordRequest request) {
         // 0. 校验
         verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
         UserEntity user = userMapper.findByEmail(request.getEmail())

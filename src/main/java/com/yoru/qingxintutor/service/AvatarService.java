@@ -22,7 +22,7 @@ public class AvatarService {
     private static final String AVATAR_DIR = "avatar";
 
     @SuppressWarnings("ExtractMethodRecommender")
-    public String uploadAvatar(MultipartFile file) throws BusinessException {
+    public String uploadAvatar(MultipartFile file) {
         // 1. 校验
         if (file.isEmpty()) {
             throw new BusinessException("Upload file is empty");

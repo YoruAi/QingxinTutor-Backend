@@ -34,7 +34,7 @@ public class TeacherService {
     /**
      * 根据user_id查询该教师信息
      */
-    public TeacherInfoResult getInfoByUserId(String userId) throws BusinessException {
+    public TeacherInfoResult getInfoByUserId(String userId) {
         Optional<TeacherInfoResult> teacher = teacherMapper.findByUserId(userId);
         if (teacher.isEmpty())
             throw new BusinessException("Teacher not found");
@@ -44,7 +44,7 @@ public class TeacherService {
     /**
      * 根据teacher_id查询该教师名
      */
-    public String getNameById(Long id) throws BusinessException {
+    public String getNameById(Long id) {
         Optional<String> teacherName = teacherMapper.findNameById(id);
         if (teacherName.isEmpty())
             throw new BusinessException("Teacher not found");
@@ -55,7 +55,7 @@ public class TeacherService {
      * 根据user_id更新该教师信息
      */
     @Transactional
-    public void updateInfoByUserId(String userId, TeacherUpdateRequest request) throws BusinessException {
+    public void updateInfoByUserId(String userId, TeacherUpdateRequest request) {
         // 根据 user_id 查询教师id
         Long teacherId = teacherMapper.findTeacherIdByUserId(userId)
                 .orElseThrow(() -> new BusinessException("Teacher not found"));
@@ -118,7 +118,7 @@ public class TeacherService {
     /**
      * 根据user_id更新教师头像
      */
-    public void updateAvatarByUserId(String userId, String icon) throws BusinessException {
+    public void updateAvatarByUserId(String userId, String icon) {
         if (!icon.startsWith("/avatar/"))
             throw new BusinessException("Avatar URL error, please contact admin");
         teacherMapper.updateIconByUserId(userId, icon);

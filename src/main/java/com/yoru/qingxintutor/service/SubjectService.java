@@ -32,7 +32,7 @@ public class SubjectService {
                 .orElseThrow(() -> new BusinessException("Subject not found"));
     }
 
-    public SubjectEntity getByName(String subjectName) throws BusinessException {
+    public SubjectEntity getByName(String subjectName) {
         Optional<SubjectEntity> subject = subjectMapper.findBySubjectName(subjectName);
         if (subject.isEmpty())
             throw new BusinessException("Subject not found");
@@ -42,7 +42,7 @@ public class SubjectService {
     /**
      * 根据id查询该教师所有科目
      */
-    public List<SubjectEntity> getSubjectsByTeacherId(Long teacherId) throws BusinessException {
+    public List<SubjectEntity> getSubjectsByTeacherId(Long teacherId) {
         if (!teacherMapper.existsById(teacherId))
             throw new BusinessException("Teacher not found");
         return teacherSubjectMapper.findByTeacherId(teacherId);
