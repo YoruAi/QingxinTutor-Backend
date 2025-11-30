@@ -100,6 +100,10 @@ public class OrderService {
     public void payOrder(String userId, Long id) {
         UserOrderEntity order = orderMapper.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException("Order not found"));
+        ReservationEntity reservation = reservationMapper.findByIdAndUserId(order.getReservationId(), userId)
+                .orElseThrow(() -> new BusinessException("Reservation not found"));
+        if (reservation.getState() != ReservationEntity.State.PENDING)
+            throw new BusinessException("Order cant be paid because reservation has been confirmed/canceled");
         if (order.getState() == UserOrderEntity.State.PAID) {
             throw new BusinessException("You have paid the order");
         } else if (order.getState() == UserOrderEntity.State.PENDING) {
@@ -114,9 +118,15 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(String teacherUserId, Long id) {
-        UserOrderEntity order = orderMapper.findByIdAndTeacherId(id, teacherMapper.findTeacherIdByUserId(teacherUserId)
-                .orElseThrow(() -> new BusinessException("Teacher not found"))
-        ).orElseThrow(() -> new BusinessException("Order not found"));
+        Long teacherId = teacherMapper.findTeacherIdByUserId(teacherUserId)
+                .orElseThrow(() -> new BusinessException("Teacher not found"));
+        UserOrderEntity order = orderMapper.findByIdAndTeacherId(id, teacherId)
+                .orElseThrow(() -> new BusinessException("Order not found"));
+        ReservationEntity reservation = reservationMapper.findByIdAndTeacherId(order.getReservationId(), teacherId)
+                .orElseThrow(() -> new BusinessException("Reservation not found"));
+        if (reservation.getState() != ReservationEntity.State.PENDING)
+            throw new BusinessException("Order cant be canceled because reservation has been confirmed/canceled");
+
         if (order.getState() == UserOrderEntity.State.PAID) {
             orderMapper.updateState(id, UserOrderEntity.State.CANCELED);
             walletService.addBalance(order.getUserId(), order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())));
