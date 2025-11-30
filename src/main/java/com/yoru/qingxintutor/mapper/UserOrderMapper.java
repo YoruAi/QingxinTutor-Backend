@@ -22,7 +22,7 @@ public interface UserOrderMapper {
     /**
      * 根据订单ID和教师ID查询订单（用于权限校验：确保教师只能操作自己课程相关的订单）
      */
-    List<UserOrderEntity> findByIdAndTeacherId(@Param("id") Long id, @Param("teacherId") Long teacherId);
+    Optional<UserOrderEntity> findByIdAndTeacherId(@Param("id") Long id, @Param("teacherId") Long teacherId);
 
     /**
      * 查询某用户在指定状态下的所有订单（如 PENDING、PAID、CANCELLED）
@@ -47,7 +47,7 @@ public interface UserOrderMapper {
     /**
      * 更新订单状态
      */
-    int updateState(@Param("id") Long id, @Param("state") String state);
+    int updateState(@Param("id") Long id, @Param("state") UserOrderEntity.State state);
 
     /**
      * 批量取消所有超时未支付的订单（创建时间超过15分钟且状态为 PENDING）
@@ -58,4 +58,16 @@ public interface UserOrderMapper {
      * 检查某个预约下的所有订单是否均已支付（状态为 PAID）
      */
     boolean areAllOrdersPaid(@Param("reservationId") Long reservationId);
+
+    List<UserOrderEntity> selectOrdersByTeacherId(
+            @Param("teacherId") Long teacherId,
+            @Param("reservationId") Long reservationId,
+            @Param("state") UserOrderEntity.State state
+    );
+
+    List<UserOrderEntity> selectOrdersByUserId(
+            @Param("userId") String userId,
+            @Param("reservationId") Long reservationId,
+            @Param("state") UserOrderEntity.State state
+    );
 }

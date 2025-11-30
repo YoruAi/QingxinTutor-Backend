@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,8 +18,8 @@ public class UserOrderEntity {
     private Long reservationId;     // BIGINT NOT NULL
     private String item;            // VARCHAR(100) NOT NULL
     private Integer quantity;       // INT DEFAULT 1
-    private Long price;             // BIGINT NOT NULL, 单位：分
-    private State state;           // VARCHAR(20) NOT NULL 
+    private BigDecimal price;       // decimal(10,2) NOT NULL
+    private State state;            // enum NOT NULL 
     private LocalDateTime createTime;
 
     public enum State {

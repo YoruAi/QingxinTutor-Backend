@@ -50,7 +50,7 @@
         o.create_time
         FROM user_order o
         INNER JOIN reservation r ON o.reservation_id = r.id
-        WHERE o.id = #{orderId}
+        WHERE o.id = #{id}
         AND r.teacher_id = #{teacherId}
     </select>
 
@@ -119,5 +119,48 @@
         WHERE reservation_id = #{reservationId}
         AND state != 'PAID'
         )
+    </select>
+
+    <select id="selectOrdersByTeacherId" resultMap="UserOrderResultMap">
+        SELECT
+        o.id,
+        o.user_id,
+        o.reservation_id,
+        o.item,
+        o.quantity,
+        o.price,
+        o.state,
+        o.create_time
+        FROM user_order o
+        INNER JOIN reservation r ON o.reservation_id = r.id
+        WHERE r.teacher_id = #{teacherId}
+        <if test="reservationId != null">
+            AND o.reservation_id = #{reservationId}
+        </if>
+        <if test="state != null">
+            AND o.state = #{state}
+        </if>
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="selectOrdersByUserId" resultMap="UserOrderResultMap">
+        SELECT
+        o.id,
+        o.user_id,
+        o.reservation_id,
+        o.item,
+        o.quantity,
+        o.price,
+        o.state,
+        o.create_time
+        FROM user_order o
+        WHERE o.user_id = #{userId}
+        <if test="reservationId != null">
+            AND o.reservation_id = #{reservationId}
+        </if>
+        <if test="state != null">
+            AND o.state = #{state}
+        </if>
+        ORDER BY o.create_time DESC
     </select>
 </mapper>
