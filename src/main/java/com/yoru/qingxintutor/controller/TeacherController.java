@@ -10,6 +10,7 @@ import com.yoru.qingxintutor.pojo.result.TeacherInfoResult;
 import com.yoru.qingxintutor.service.AvatarService;
 import com.yoru.qingxintutor.service.TeacherService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +39,13 @@ public class TeacherController {
     public ApiResult<PageInfo<TeacherInfoResult>> listAllTeachers(@RequestParam(defaultValue = "1") Integer pageNum,
                                                                   @RequestParam(defaultValue = "6") Integer pageSize) {
         return ApiResult.success(teacherService.listAll(pageNum, pageSize));
+    }
+
+    @GetMapping("/{id}")
+    public ApiResult<TeacherInfoResult> getTeacher(@PathVariable("id")
+                                                   @Min(value = 1, message = "Id must be a positive number")
+                                                   Long id) {
+        return ApiResult.success(teacherService.getInfoById(id));
     }
 
     @GetMapping("/filter")

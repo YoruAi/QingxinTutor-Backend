@@ -42,6 +42,16 @@ public class TeacherService {
     }
 
     /**
+     * 根据id查询该教师信息
+     */
+    public TeacherInfoResult getInfoById(Long id) {
+        Optional<TeacherInfoResult> teacher = teacherMapper.findById(id);
+        if (teacher.isEmpty())
+            throw new BusinessException("Teacher not found");
+        return teacher.get();
+    }
+
+    /**
      * 根据teacher_id查询该教师名
      */
     public String getNameById(Long id) {
