@@ -444,6 +444,13 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="findUserIdByTeacherId" resultType="string">
+        SELECT
+        user_id
+        FROM teacher
+        WHERE id = #{id}
+    </select>
+
     <update id="updateIconByUserId">
         UPDATE teacher
         SET icon = #{icon}

@@ -51,7 +51,8 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .map(fieldError -> switch (fieldError.getCode()) {
                     case "NotBlank", "NotNull", "Min", "Max", "Email", "Size", "AssertTrue", "Past", "Future", "Phone",
-                         "StrongPassword", "ValidTimestamp", "OptionalNotBlank" -> fieldError.getDefaultMessage();
+                         "StrongPassword", "ValidTimestamp", "OptionalNotBlank", "Digits" ->
+                            fieldError.getDefaultMessage();
                     default -> "Invalid value for " + fieldError.getField();
                 })
                 .orElse("Invalid input");

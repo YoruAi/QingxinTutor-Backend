@@ -21,13 +21,15 @@ public interface TeacherMapper {
     int updateIconByUserId(@Param("userId") String userId, @Param("icon") String icon);
 
     Optional<String> findNameById(@Param("id") Long id);
-    
+
     /**
      * 根据 ID 查询老师是否存在
      */
     boolean existsById(@Param("id") Long id);
 
     Optional<Long> findTeacherIdByUserId(@Param("userId") String userId);
+
+    Optional<String> findUserIdByTeacherId(@Param("id") Long id);
 
     // 以下返回TeacherInfoResult封装 //
     Optional<TeacherInfoResult> findById(@Param("id") Long id);
