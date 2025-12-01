@@ -22,7 +22,7 @@ public class ReservationCreateRequest {
     private String subjectName;
 
     @NotNull(message = "StartTime is required")
-    @Future(message = "ReminderTime must be in the future")
+    @Future(message = "StartTime must be in the future")
     private LocalDateTime startTime;
 
     @NotNull(message = "Duration is required")

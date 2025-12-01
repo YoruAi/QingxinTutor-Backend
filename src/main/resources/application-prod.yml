@@ -5,4 +5,4 @@ spring:
 
 logging:
   level:
-    com.yoru.qingxintutor.mapper: warn
+    com.yoru.qingxintutor: warn

@@ -4,4 +4,4 @@ spring:
       on-profile: dev
 logging:
   level:
-    com.yoru.qingxintutor.mapper: debug
+    com.yoru.qingxintutor: debug

@@ -31,7 +31,7 @@ public class ReservationController {
     GET	    /api/reservation	    用户/教师	查询学生发送的预约/教师接收到的预约（可选筛选：状态）
     GET	    /api/reservation/{id}	用户/教师	获取预约详情
     POST	/api/reservation	    用户	        创建新预约(检查教师是否有空)
-    PUT	    /api/reservation/{id}/cancel	用户/教师	用户取消预约(仅PENDING) → CANCELED，级联取消未支付订单，已支付则退款
+    PUT	    /api/reservation/{id}/cancel	用户/教师	用户取消预约(仅PENDING) → CANCELLED，级联取消未支付订单，已支付则退款
     PUT	    /api/reservation/{id}/confirm	教师	        教师确认预约(仅全部订单PAID) → CONFIRMED
     PUT	    /api/reservation/{id}/complete	教师	        结课(仅CONFIRMED)→ COMPLETED
      */

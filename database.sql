@@ -94,7 +94,6 @@ CREATE TABLE user_order
     price          DECIMAL(10, 2)                        NOT NULL DEFAULT 0.00,
     state          ENUM ('PENDING', 'PAID', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     create_time    DATETIME                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_user_create (user_id, create_time),
     INDEX idx_user_id (user_id),
     INDEX idx_reservation_id (reservation_id)
 ) ENGINE = InnoDB
@@ -142,7 +141,6 @@ CREATE TABLE reservation
     duration    INT                                                     NOT NULL COMMENT 'Unit-Minute', -- minute
     state       ENUM ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     create_time DATETIME                                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_user_teacher_subject_start (user_id, teacher_id, subject_id, start_time),
     INDEX idx_user_id (user_id),
     INDEX idx_teacher_id (teacher_id),
     INDEX idx_start_time (start_time)

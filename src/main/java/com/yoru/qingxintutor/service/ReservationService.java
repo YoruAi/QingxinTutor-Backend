@@ -36,6 +36,9 @@ public class ReservationService {
     private TeacherMapper teacherMapper;
 
     @Autowired
+    private TeacherSubjectMapper teacherSubjectMapper;
+
+    @Autowired
     private SubjectMapper subjectMapper;
 
     @Autowired
@@ -44,6 +47,7 @@ public class ReservationService {
     @Autowired
     private VoucherService voucherService;
 
+    // TODO: 添加通知功能：收到学生发起的预约、学生收到订单、预约被取消（教师或学生）、有退款、课程结束+有奖学券入账、即将上课(已完成)
     @Autowired
     private NotificationService notificationService;
 
@@ -126,6 +130,10 @@ public class ReservationService {
         Long subjectId = subjectMapper.findBySubjectName(request.getSubjectName().trim())
                 .orElseThrow(() -> new BusinessException("Subject not found"))
                 .getId();
+        if (teacherSubjectMapper.findByTeacherId(request.getTeacherId())
+                .stream()
+                .noneMatch(subject -> subject.getId().equals(subjectId)))
+            throw new BusinessException("The teacher doesnt teach the subject");
         if (reservationMapper.existsConflict(request.getTeacherId(),
                 request.getStartTime(),
                 request.getStartTime().plusMinutes(request.getDuration())))
@@ -170,6 +178,13 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
         if (reservation.getState() != ReservationEntity.State.PENDING)
             throw new BusinessException("Only pending reservation can be confirmed");
+        if (reservation.getStartTime().isBefore(LocalDateTime.now()))
+            throw new BusinessException("The start time has passed");
+        if (reservationMapper.existsConflict(teacherId,
+                reservation.getStartTime(),
+                reservation.getStartTime().plusMinutes(reservation.getDuration())))
+            throw new BusinessException("Reservation time conflicts with an confirmed reservation, " +
+                    "please cancel the reservation");
         if (!orderMapper.hasNoPendingOrders(id))
             throw new BusinessException("One or more orders are not paid by student yet.");
         reservationMapper.updateState(id, ReservationEntity.State.CONFIRMED);
@@ -183,6 +198,8 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
         if (reservation.getState() != ReservationEntity.State.CONFIRMED)
             throw new BusinessException("Only confirmed reservation can be completed");
+        if (reservation.getStartTime().plusMinutes(reservation.getDuration()).isAfter(LocalDateTime.now()))
+            throw new BusinessException("The lesson hasn't over");
         reservationMapper.updateState(id, ReservationEntity.State.COMPLETED);
         voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
     }
@@ -207,7 +224,7 @@ public class ReservationService {
                                 reservation.getStartTime(),
                                 reservation.getDuration()
                         );
-                        log.debug("Sent class reminder for reservation ID: {}", reservation.getId());
+                        log.debug("Scheduled task: success to send lesson reminder for reservation ID: {}", reservation.getId());
                     } catch (Exception e) {
                         log.error("Failed to send reminder for reservation ID: {}, {}", reservation.getId()
                                 , e.getMessage());
@@ -219,15 +236,16 @@ public class ReservationService {
     // 定时任务 - 课程结束后 12 小时自动标记为 COMPLETED
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     @Transactional
-    public void autoConfirmCompletedReservation() {
+    public void autoCompletedReservation() {
         reservationMapper.getReservationsReadyForCompletion()
                 .forEach(reservation -> {
                     reservationMapper.updateState(reservation.getId(), ReservationEntity.State.COMPLETED);
                     voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
+                    log.debug("Scheduled task: success to auto complete reservation {}", reservation.getId());
                 });
     }
 
-    // 定时任务 - 超过课程开始时间自动标记为 CANCELED
+    // 定时任务 - 超过课程开始时间自动标记为 CANCELLED
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void autoCancelExpiredReservation() {
@@ -235,6 +253,7 @@ public class ReservationService {
                 .forEach(reservation -> {
                     try {
                         cancelReservation(reservation);
+                        log.debug("Scheduled task: success to auto cancel reservation {}", reservation.getId());
                     } catch (Exception e) {
                         log.warn("Failed to auto-cancel reservation ID {} : {}",
                                 reservation.getId(), e.getMessage());
@@ -252,21 +271,21 @@ public class ReservationService {
                     .forEach(order -> {
                         UserOrderEntity.State orderState = order.getState();
                         if (orderState == UserOrderEntity.State.PENDING) {
-                            orderMapper.updateState(order.getId(), UserOrderEntity.State.CANCELED);
+                            orderMapper.updateState(order.getId(), UserOrderEntity.State.CANCELLED);
                         } else if (orderState == UserOrderEntity.State.PAID) {
-                            orderMapper.updateState(order.getId(), UserOrderEntity.State.CANCELED);
                             walletService.addBalance(order.getUserId(),
                                     order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())));
-                        } else if (orderState != UserOrderEntity.State.CANCELED) {
+                            orderMapper.updateState(order.getId(), UserOrderEntity.State.CANCELLED);
+                        } else if (orderState != UserOrderEntity.State.CANCELLED) {
                             log.warn("Unexpected order state {} for order ID {}, skipping cancellation",
                                     orderState, order.getId());
                         }
                     });
-            reservationMapper.updateState(reservationId, ReservationEntity.State.CANCELED);
+            reservationMapper.updateState(reservationId, ReservationEntity.State.CANCELLED);
         } else if (state == ReservationEntity.State.CONFIRMED || state == ReservationEntity.State.COMPLETED) {
-            throw new BusinessException("Only pending reservation can be canceled");
-        } else if (state == ReservationEntity.State.CANCELED) {
-            throw new BusinessException("The reservation has been canceled");
+            throw new BusinessException("Only pending reservation can be cancelled");
+        } else if (state == ReservationEntity.State.CANCELLED) {
+            throw new BusinessException("The reservation has been cancelled");
         } else {
             throw new BusinessException("Unknown reservation state");
         }

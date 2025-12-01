@@ -22,6 +22,6 @@ public class ReservationEntity {
     private LocalDateTime createTime;
 
     public enum State {
-        PENDING, CONFIRMED, COMPLETED, CANCELED
+        PENDING, CONFIRMED, COMPLETED, CANCELLED
     }
 }
