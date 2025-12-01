@@ -6,6 +6,7 @@ import com.yoru.qingxintutor.pojo.dto.request.ReservationCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
+import com.yoru.qingxintutor.pojo.entity.UserVoucherEntity;
 import com.yoru.qingxintutor.pojo.result.ReservationInfoResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +49,6 @@ public class ReservationService {
     @Autowired
     private VoucherService voucherService;
 
-    // TODO: 添加通知功能：收到学生发起的预约、学生收到订单、预约被取消（教师或学生）、有退款、课程结束+有奖学券入账、即将上课(已完成)
     @Autowired
     private NotificationService notificationService;
 
@@ -149,6 +150,22 @@ public class ReservationService {
                 .createTime(LocalDateTime.now())
                 .build();
         reservationMapper.insert(reservation);
+
+        String teacherUserId = teacherMapper.findUserIdByTeacherId(reservation.getTeacherId())
+                .orElseThrow(() -> new BusinessException("Teacher not found"));
+        String title = "新预约请求";
+        String content = String.format("学生 %s 向您预约了课程，时间：%s，时长：%d 分钟，请及时处理。",
+                username,
+                reservation.getStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                reservation.getDuration());
+        notificationService.createPersonalNotification(teacherUserId, title, content);
+        emailUtils.sendNewReservationRequestToTeacher(userMapper.findById(teacherUserId)
+                        .orElseThrow(() -> new BusinessException("User not found")).getEmail(),
+                teacherName,
+                username,
+                reservation.getStartTime(),
+                reservation.getDuration());
+
         return entityToResult(reservation, username, teacherName, request.getSubjectName().trim());
     }
 
@@ -158,6 +175,11 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
 
         cancelReservation(reservation);
+
+        String title = "预约已取消";
+        String content = String.format("预约 %d 已被学生取消，可进入预约页面查看详情。", reservation.getId());
+        notificationService.createPersonalNotification(teacherMapper.findUserIdByTeacherId(reservation.getTeacherId())
+                .orElseThrow(() -> new BusinessException("User not found")), title, content);
     }
 
     @Transactional
@@ -168,6 +190,11 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
 
         cancelReservation(reservation);
+
+        String title = "预约被拒绝";
+        String content = String.format("预约 %d 已被教师拒绝，相关退款已退回钱包余额，可进入预约页面查看详情。", reservation.getId());
+        notificationService.createPersonalNotification(teacherMapper.findUserIdByTeacherId(reservation.getTeacherId())
+                .orElseThrow(() -> new BusinessException("User not found")), title, content);
     }
 
     @Transactional
@@ -188,6 +215,10 @@ public class ReservationService {
         if (!orderMapper.hasNoPendingOrders(id))
             throw new BusinessException("One or more orders are not paid by student yet.");
         reservationMapper.updateState(id, ReservationEntity.State.CONFIRMED);
+
+        String title = "预约已确认";
+        String contentStudent = String.format("预约 %d 已确认，请及时与教师联系。可进入预约页面查看详情。", reservation.getId());
+        notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
     }
 
     @Transactional
@@ -201,7 +232,15 @@ public class ReservationService {
         if (reservation.getStartTime().plusMinutes(reservation.getDuration()).isAfter(LocalDateTime.now()))
             throw new BusinessException("The lesson hasn't over");
         reservationMapper.updateState(id, ReservationEntity.State.COMPLETED);
-        voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
+        UserVoucherEntity voucher = voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
+
+        UserEntity student = userMapper.findById(reservation.getUserId())
+                .orElseThrow(() -> new BusinessException("User not found"));
+        String title = "预约课程已结课";
+        String contentStudent = String.format("恭喜您！预约课程 %d 已结课，相关奖学券已发放，请进入钱包界面查收。", reservation.getId());
+        notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
+        emailUtils.sendCourseCompletedWithVoucherToStudent(student.getEmail(), student.getUsername(),
+                reservation.getId(), voucher.getAmount());
     }
 
 
@@ -240,7 +279,15 @@ public class ReservationService {
         reservationMapper.getReservationsReadyForCompletion()
                 .forEach(reservation -> {
                     reservationMapper.updateState(reservation.getId(), ReservationEntity.State.COMPLETED);
-                    voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
+                    UserVoucherEntity voucher = voucherService.issue(reservation.getUserId(), BigDecimal.TEN);
+
+                    UserEntity student = userMapper.findById(reservation.getUserId())
+                            .orElseThrow(() -> new BusinessException("User not found"));
+                    String title = "预约课程已结课";
+                    String contentStudent = String.format("恭喜您！预约课程 %d 已结课，相关奖学券已发放，请进入钱包界面查收。", reservation.getId());
+                    notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
+                    emailUtils.sendCourseCompletedWithVoucherToStudent(student.getEmail(), student.getUsername(),
+                            reservation.getId(), voucher.getAmount());
                     log.debug("Scheduled task: success to auto complete reservation {}", reservation.getId());
                 });
     }
@@ -253,6 +300,14 @@ public class ReservationService {
                 .forEach(reservation -> {
                     try {
                         cancelReservation(reservation);
+                        String title = "预约自动取消";
+                        String contentStudent = String.format("预约 %d 因超时失效已被自动取消，相关退款已退回钱包余额，可进入预约页面查看详情。", reservation.getId());
+                        notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
+
+                        String contentTeacher = String.format("预约 %d 因超时失效已被自动取消，可进入预约页面查看详情。", reservation.getId());
+                        notificationService.createPersonalNotification(teacherMapper.findUserIdByTeacherId(reservation.getTeacherId())
+                                .orElseThrow(() -> new BusinessException("User not found")), title, contentTeacher);
+
                         log.debug("Scheduled task: success to auto cancel reservation {}", reservation.getId());
                     } catch (Exception e) {
                         log.warn("Failed to auto-cancel reservation ID {} : {}",
@@ -276,6 +331,13 @@ public class ReservationService {
                             walletService.addBalance(order.getUserId(),
                                     order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())));
                             orderMapper.updateState(order.getId(), UserOrderEntity.State.CANCELLED);
+
+                            String title = "退款已处理";
+                            String content = String.format("您的订单 %s 已成功退款 ¥%.2f。退款原因：%s。",
+                                    order.getId(),
+                                    order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())),
+                                    "预约被取消");
+                            notificationService.createPersonalNotification(order.getUserId(), title, content);
                         } else if (orderState != UserOrderEntity.State.CANCELLED) {
                             log.warn("Unexpected order state {} for order ID {}, skipping cancellation",
                                     orderState, order.getId());

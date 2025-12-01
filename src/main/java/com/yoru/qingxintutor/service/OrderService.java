@@ -8,8 +8,10 @@ import com.yoru.qingxintutor.mapper.UserOrderMapper;
 import com.yoru.qingxintutor.pojo.dto.request.OrderCreateRequest;
 import com.yoru.qingxintutor.pojo.dto.request.OrderPayRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
+import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
 import com.yoru.qingxintutor.pojo.result.OrderInfoResult;
+import com.yoru.qingxintutor.utils.EmailUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,6 +46,12 @@ public class OrderService {
 
     @Autowired
     private VoucherService voucherService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private EmailUtils emailUtils;
 
     public OrderInfoResult getTeacherOrder(String teacherUserId, Long id) {
         UserOrderEntity order = orderMapper.findByIdAndTeacherId(id, teacherMapper.findTeacherIdByUserId(teacherUserId)
@@ -99,6 +107,23 @@ public class OrderService {
                 .createTime(LocalDateTime.now())
                 .build();
         orderMapper.insert(order);
+
+        UserEntity student = userMapper.findById(order.getUserId())
+                .orElseThrow(() -> new BusinessException("User not found"));
+        BigDecimal total = order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity()));
+        String title = "新的未支付订单";
+        String content = String.format("您有新的订单需要支付：单价 %.2f 元，数量 %d，总计 %.2f 元，请及时完成支付。",
+                order.getPrice(),
+                order.getQuantity(),
+                total);
+        notificationService.createPersonalNotification(order.getUserId(), title, content);
+        emailUtils.sendOrderCreatedToStudent(student.getEmail(),
+                student.getUsername(),
+                order.getPrice(),
+                order.getQuantity(),
+                total
+        );
+
         return entityToResult(order, userMapper.findById(order.getUserId())
                 .orElseThrow(() -> new BusinessException("User not found"))
                 .getUsername());
@@ -146,6 +171,13 @@ public class OrderService {
             throw new BusinessException("Order cant be cancelled because reservation has been confirmed/cancelled");
 
         cancelOrder(order);
+
+        String title = "退款已处理";
+        String content = String.format("您的订单 %s 已成功退款 ¥%.2f。退款原因：%s。",
+                order.getId(),
+                order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())),
+                "教师取消订单");
+        notificationService.createPersonalNotification(order.getUserId(), title, content);
     }
 
     @Transactional
@@ -158,6 +190,13 @@ public class OrderService {
             throw new BusinessException("Order cant be cancelled because reservation has been confirmed/cancelled");
 
         cancelOrder(order);
+
+        String title = "退款已处理";
+        String content = String.format("您的订单 %s 已成功退款 ¥%.2f。退款原因：%s。",
+                order.getId(),
+                order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())),
+                "学生取消订单");
+        notificationService.createPersonalNotification(order.getUserId(), title, content);
     }
 
     // 定时任务 - 取消超时未支付订单

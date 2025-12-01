@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新的订单 - Qingxin Tutor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .info-box {
+            background: #ecfeff;
+            border-left: 4px solid #0ea5e9;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-item {
+            margin: 8px 0;
+            display: flex;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #0ea5e9;
+            min-width: 80px;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .highlight {
+            color: #0d9488;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7b8794;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🧾 新的订单</h1>
+    </div>
+    <div class="content">
+        <p>亲爱的 <span th:text="${studentName}">同学</span>，您好！</p>
+
+        <p>您有新的订单需要支付，请尽快完成支付：</p>
+
+        <div class="info-box">
+            <div class="info-item">
+                <span class="info-label">单价</span>
+                <span class="info-value">¥<span th:text="${price}">0.00</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">数量</span>
+                <span class="info-value" th:text="${quantity}">1</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">总计</span>
+                <span class="info-value highlight">¥<span th:text="${totalAmount}">0.00</span></span>
+            </div>
+        </div>
+
+        <p>订单将在 30 分钟后自动取消，请及时处理。</p>
+    </div>
+    <div class="footer">
+        <p>QingxinTutor.yoru.com</p>
+        <p>此为系统自动发送邮件，请勿回复。</p>
+    </div>
+</div>
+</body>
+</html>

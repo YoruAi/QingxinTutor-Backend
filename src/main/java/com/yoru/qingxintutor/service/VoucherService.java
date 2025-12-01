@@ -14,6 +14,8 @@ import java.util.List;
 @Service
 public class VoucherService {
 
+    public static final int voucherExpireIn = 3;    // days
+
     @Autowired
     private UserVoucherMapper voucherMapper;
 
@@ -49,14 +51,15 @@ public class VoucherService {
         walletService.addBalance(userId, voucher.getAmount());
     }
 
-    public void issue(String userId, BigDecimal amount) {
+    public UserVoucherEntity issue(String userId, BigDecimal amount) {
         LocalDateTime now = LocalDateTime.now();
         UserVoucherEntity voucher = UserVoucherEntity.builder()
                 .userId(userId)
                 .amount(amount)
                 .createTime(now)
-                .expireTime(now.plusDays(3))
+                .expireTime(now.plusDays(voucherExpireIn))
                 .build();
         voucherMapper.insert(voucher);
+        return voucher;
     }
 }

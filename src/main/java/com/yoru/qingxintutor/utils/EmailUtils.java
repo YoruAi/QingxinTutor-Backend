@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -33,7 +34,7 @@ public class EmailUtils {
     @Async
     public void sendRegisterCode(String to, String code) {
         String subject = "【Qingxin Tutor】注册验证码";
-        String html = buildHtml("email/register-code", code);
+        String html = buildCodeHtml("email/register-code", code);
         sendHtml(to, subject, html);
     }
 
@@ -43,7 +44,7 @@ public class EmailUtils {
     @Async
     public void sendLoginCode(String to, String code) {
         String subject = "【Qingxin Tutor】登录验证码";
-        String html = buildHtml("email/login-code", code);
+        String html = buildCodeHtml("email/login-code", code);
         sendHtml(to, subject, html);
     }
 
@@ -53,7 +54,7 @@ public class EmailUtils {
     @Async
     public void sendResetPasswordCode(String to, String code) {
         String subject = "【Qingxin Tutor】重置密码验证码";
-        String html = buildHtml("email/reset-password-code", code);
+        String html = buildCodeHtml("email/reset-password-code", code);
         sendHtml(to, subject, html);
     }
 
@@ -84,6 +85,90 @@ public class EmailUtils {
         sendHtml(to, subject, html);
     }
 
+    /**
+     * 发送“新预约请求”邮件给教师
+     */
+    @Async
+    public void sendNewReservationRequestToTeacher(
+            String to,
+            String teacherName,
+            String studentName,
+            LocalDateTime startTime,
+            Integer durationMinutes) {
+        String subject = "【Qingxin Tutor】您有一条新的预约请求";
+        String html = buildNewReservationRequestHtml(teacherName, studentName, startTime, durationMinutes);
+        sendHtml(to, subject, html);
+    }
+
+    /**
+     * 发送“新的订单”邮件给学生
+     */
+    @Async
+    public void sendOrderCreatedToStudent(
+            String to,
+            String studentName,
+            BigDecimal price,
+            Integer quantity,
+            BigDecimal totalAmount) {
+        String subject = "【Qingxin Tutor】收到新的订单，请及时支付";
+        String html = buildOrderCreatedHtml(studentName, price, quantity, totalAmount);
+        sendHtml(to, subject, html);
+    }
+
+    /**
+     * 发送“课程结课 + 奖学券到账”邮件给学生
+     */
+    @Async
+    public void sendCourseCompletedWithVoucherToStudent(
+            String to,
+            String studentName,
+            Long reservationId,
+            BigDecimal voucherAmount) {
+        String subject = "【Qingxin Tutor】课程结课通知";
+        String html = buildCourseCompletedHtml(studentName, reservationId, voucherAmount);
+        sendHtml(to, subject, html);
+    }
+
+
+    private String buildCourseCompletedHtml(
+            String studentName,
+            Long reservationId,
+            BigDecimal voucherAmount) {
+        Context context = new Context();
+        context.setVariable("studentName", studentName);
+        context.setVariable("reservationId", reservationId);
+        context.setVariable("voucherAmount", voucherAmount.toString());
+        return templateEngine.process("email/course-completed-voucher", context);
+    }
+
+    private String buildOrderCreatedHtml(
+            String studentName,
+            BigDecimal price,
+            Integer quantity,
+            BigDecimal totalAmount) {
+
+        Context context = new Context();
+        context.setVariable("studentName", studentName);
+        context.setVariable("price", price.toString());
+        context.setVariable("quantity", quantity);
+        context.setVariable("totalAmount", totalAmount.toString());
+        return templateEngine.process("email/order-created", context);
+    }
+
+    private String buildNewReservationRequestHtml(
+            String teacherName,
+            String studentName,
+            LocalDateTime startTime,
+            Integer durationMinutes) {
+        String startTimeStr = startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        Context context = new Context();
+        context.setVariable("teacherName", teacherName);
+        context.setVariable("studentName", studentName);
+        context.setVariable("startTime", startTimeStr);
+        context.setVariable("durationMinutes", durationMinutes);
+        return templateEngine.process("email/reservation-request", context);
+    }
+
     private String buildLessonReminderHtml(
             String studentName,
             String teacherName,
@@ -104,7 +189,7 @@ public class EmailUtils {
         return templateEngine.process("email/register-success", context);
     }
 
-    private String buildHtml(String templateName, String code) {
+    private String buildCodeHtml(String templateName, String code) {
         Context context = new Context();
         context.setVariable("code", code);
         return templateEngine.process(templateName, context);
