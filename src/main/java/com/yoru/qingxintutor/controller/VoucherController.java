@@ -9,7 +9,10 @@ import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -26,7 +29,6 @@ public class VoucherController {
     @RequireStudent
     GET	/api/vouchers	    用户 查询本人所有奖学券
     GET	/api/voucher/:id	用户 查询本人某一奖学券
-    POST /api/voucher/:id   用户 使用一张奖学券
      */
     @RequireStudent
     @GetMapping("/all")
@@ -45,16 +47,5 @@ public class VoucherController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserVoucherEntity voucher = voucherService.findById(userDetails.getUser().getId(), id);
         return ApiResult.success(voucher);
-    }
-
-    @RequireStudent
-    @DeleteMapping("/{id}")
-    public ApiResult<Void> useVoucher(
-            @PathVariable
-            @Min(value = 1, message = "Id must be a positive number")
-            Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        voucherService.useVoucher(userDetails.getUser().getId(), id);
-        return ApiResult.success();
     }
 }

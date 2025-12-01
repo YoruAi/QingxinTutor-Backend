@@ -6,9 +6,11 @@ import com.yoru.qingxintutor.mapper.TeacherMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
 import com.yoru.qingxintutor.mapper.UserOrderMapper;
 import com.yoru.qingxintutor.pojo.dto.request.OrderCreateRequest;
+import com.yoru.qingxintutor.pojo.dto.request.OrderPayRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
 import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
 import com.yoru.qingxintutor.pojo.result.OrderInfoResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -36,6 +41,9 @@ public class OrderService {
 
     @Autowired
     private WalletService walletService;
+
+    @Autowired
+    private VoucherService voucherService;
 
     public OrderInfoResult getTeacherOrder(String teacherUserId, Long id) {
         UserOrderEntity order = orderMapper.findByIdAndTeacherId(id, teacherMapper.findTeacherIdByUserId(teacherUserId)
@@ -97,22 +105,30 @@ public class OrderService {
     }
 
     @Transactional
-    public void payOrder(String userId, Long id) {
+    public void payOrder(String userId, Long id, OrderPayRequest request) {
         UserOrderEntity order = orderMapper.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException("Order not found"));
         ReservationEntity reservation = reservationMapper.findByIdAndUserId(order.getReservationId(), userId)
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
         if (reservation.getState() != ReservationEntity.State.PENDING)
-            throw new BusinessException("Order cant be paid because reservation has been confirmed/canceled");
+            throw new BusinessException("Order cant be paid because reservation has been confirmed/cancelled");
 
         UserOrderEntity.State state = order.getState();
         if (state == UserOrderEntity.State.PAID) {
             throw new BusinessException("You have paid the order");
         } else if (state == UserOrderEntity.State.PENDING) {
+            BigDecimal needPay = order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity()));
+            Set<Long> voucherIds = new LinkedHashSet<>(request.getVoucherIds());
+            for (Long voucherId : voucherIds) {
+                BigDecimal amount = voucherService.findById(userId, voucherId).getAmount();
+                needPay = needPay.subtract(amount);
+                voucherService.useVoucher(userId, voucherId);
+            }
+            needPay = needPay.max(BigDecimal.ZERO);
+            walletService.deductBalance(userId, needPay);
             orderMapper.updateState(id, UserOrderEntity.State.PAID);
-            walletService.deductBalance(userId, order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())));
-        } else if (state == UserOrderEntity.State.CANCELED) {
-            throw new BusinessException("Order has been canceled");
+        } else if (state == UserOrderEntity.State.CANCELLED) {
+            throw new BusinessException("Order has been cancelled");
         } else {
             throw new BusinessException("Unknown order state");
         }
@@ -127,7 +143,7 @@ public class OrderService {
         ReservationEntity reservation = reservationMapper.findByIdAndTeacherId(order.getReservationId(), teacherId)
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
         if (reservation.getState() != ReservationEntity.State.PENDING)
-            throw new BusinessException("Order cant be canceled because reservation has been confirmed/canceled");
+            throw new BusinessException("Order cant be cancelled because reservation has been confirmed/cancelled");
 
         cancelOrder(order);
     }
@@ -139,7 +155,7 @@ public class OrderService {
         ReservationEntity reservation = reservationMapper.findByIdAndUserId(order.getReservationId(), userId)
                 .orElseThrow(() -> new BusinessException("Reservation not found"));
         if (reservation.getState() != ReservationEntity.State.PENDING)
-            throw new BusinessException("Order cant be canceled because reservation has been confirmed/canceled");
+            throw new BusinessException("Order cant be cancelled because reservation has been confirmed/cancelled");
 
         cancelOrder(order);
     }
@@ -148,21 +164,23 @@ public class OrderService {
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void cancelExpiredPendingOrders() {
-        orderMapper.cancelExpiredPendingOrders();
+        int updated = orderMapper.cancelExpiredPendingOrders();
+        if (updated != 0)
+            log.debug("Scheduled task: success to auto cancel {} order(s)", updated);
     }
 
-    
+
     @Transactional
     public void cancelOrder(UserOrderEntity order) {
         UserOrderEntity.State state = order.getState();
         Long orderId = order.getId();
         if (state == UserOrderEntity.State.PAID) {
-            orderMapper.updateState(orderId, UserOrderEntity.State.CANCELED);
             walletService.addBalance(order.getUserId(), order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity())));
+            orderMapper.updateState(orderId, UserOrderEntity.State.CANCELLED);
         } else if (state == UserOrderEntity.State.PENDING) {
-            orderMapper.updateState(orderId, UserOrderEntity.State.CANCELED);
-        } else if (state == UserOrderEntity.State.CANCELED) {
-            throw new BusinessException("The order has been canceled");
+            orderMapper.updateState(orderId, UserOrderEntity.State.CANCELLED);
+        } else if (state == UserOrderEntity.State.CANCELLED) {
+            throw new BusinessException("The order has been cancelled");
         } else {
             throw new BusinessException("Unknown order state");
         }

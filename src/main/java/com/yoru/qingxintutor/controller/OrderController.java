@@ -6,6 +6,7 @@ import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
 import com.yoru.qingxintutor.pojo.dto.request.OrderCreateRequest;
+import com.yoru.qingxintutor.pojo.dto.request.OrderPayRequest;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
 import com.yoru.qingxintutor.pojo.result.OrderInfoResult;
@@ -31,7 +32,7 @@ public class OrderController {
     POST	/api/order/reservation/{reservationId}	教师为某预约创建新订单（仅当 reservation.state = PENDING）
     GET	    /api/order/{id}	用户	查看订单详情
     GET	    /api/orders	用户	查询本人所有订单（可按 reservation_id 过滤）
-    PUT	    /api/order/{id}/pay	用户	支付订单（→ PAID，扣钱包余额）
+    PUT	    /api/order/{id}/pay	用户	支付订单（→ PAID，扣钱包余额与选择的奖学券）
     PUT	    /api/order/{id}/cancel	用户/教师	取消某订单（仅 PENDING 状态）→ CANCELLED
     限制：一旦预约进入 CONFIRMED，禁止再创建新订单。
      */
@@ -92,8 +93,9 @@ public class OrderController {
     public ApiResult<Void> payOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable
                                     @Min(value = 1, message = "Id must be a positive number")
-                                    Long id) {
-        orderService.payOrder(userDetails.getUser().getId(), id);
+                                    Long id,
+                                    @Valid @RequestBody OrderPayRequest orderPayRequest) {
+        orderService.payOrder(userDetails.getUser().getId(), id, orderPayRequest);
         return ApiResult.success();
     }
 

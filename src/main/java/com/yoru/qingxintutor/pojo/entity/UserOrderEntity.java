@@ -25,6 +25,6 @@ public class UserOrderEntity {
     public enum State {
         PENDING,
         PAID,
-        CANCELED
+        CANCELLED
     }
 }
