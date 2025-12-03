@@ -81,6 +81,20 @@ public class ForumMessageService {
         return entityToResult(forumMessage, forumName, username);
     }
 
+    public List<ForumMessageInfoResult> listWeeklyByForumId(Long forumId) {
+        return forumMessageMapper.findByWeeklyForumId(forumId)
+                .stream()
+                .map(forumMessage -> entityToResult(forumMessage,
+                        forumMapper.findById(forumId)
+                                .orElseThrow(() -> new BusinessException("Forum not found"))
+                                .getName(),
+                        userMapper.findById(forumMessage.getUserId())
+                                .orElseThrow(() -> new BusinessException("User not found"))
+                                .getUsername()))
+                .toList();
+    }
+
+
     private static ForumMessageInfoResult entityToResult(ForumMessageEntity entity, String forumName, String username) {
         return ForumMessageInfoResult.builder()
                 .id(entity.getId())

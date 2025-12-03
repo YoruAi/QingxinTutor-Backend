@@ -47,5 +47,9 @@ app:
   jwt:
     secret: ${JWT_SECRET}
     expiration: 604800000  # ms
+  ai:
+    api-key: ${API_KEY}
+    base-url: https://ark.cn-beijing.volces.com/api/v3
+    model: doubao-seed-1-6-lite-251015
   upload:
     file-dir: ${UPLOAD_BASE_DIR}/QingxinTutor

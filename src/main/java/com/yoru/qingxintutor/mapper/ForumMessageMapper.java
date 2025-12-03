@@ -16,4 +16,6 @@ public interface ForumMessageMapper {
     List<ForumMessageEntity> findByUserId(@Param("userId") String userId);
 
     int insert(ForumMessageEntity forumMessage);
+
+    List<ForumMessageEntity> findByWeeklyForumId(@Param("forumId") Long forumId);
 }

@@ -69,4 +69,14 @@
         </if>
         )
     </insert>
+
+    <select id="findByWeeklyForumId" resultMap="ForumMessageResultMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE forum_id = #{forumId}
+        AND create_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        ORDER BY create_time ASC
+    </select>
 </mapper>
