@@ -23,7 +23,7 @@ See DB Design in database.sql.
 All entities are in com.yoru.qingxintutor.pojo.
 
 Completed function modules: Auth, Teacher/Student Role, Subjects, Teachers, Reservation & Orders, User, Wallet,
-Messages, Plans.
+Messages, Plans, AI insight.
 
 If you want to revise or add some functions, be **careful** to use the unused mapper method because they are all
 unverified, there may be errors.
