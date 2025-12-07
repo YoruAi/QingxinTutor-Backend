@@ -1,27 +1,42 @@
 package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 public class AvatarService {
+    public static final String DEFAULT_AVATAR_URL = "/avatar/default.jpg";
+    
+    private static final String AVATAR_DIR = "avatar";
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png");
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${app.upload.file-dir}")
     private String fileDir;
-
-    private static final String AVATAR_DIR = "avatar";
-
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png");
 
     public String uploadAvatar(MultipartFile file) {
         // 1. 校验
@@ -58,5 +73,38 @@ public class AvatarService {
 
         // 4. 返回可访问的 URL 路径
         return "/" + AVATAR_DIR + "/" + safeFileName;
+    }
+
+    @Async
+    public CompletableFuture<String> saveAvatarToLocal(String githubId, String githubAvatarUrl) {
+        try {
+            // 自动创建目录（包括父目录）
+            Path avatarDir = Paths.get(fileDir, AVATAR_DIR);
+            Files.createDirectories(avatarDir);
+
+            // 下载图片
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "QingxinTutor/2.0");
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<Resource> response = restTemplate.exchange(
+                    githubAvatarUrl,
+                    HttpMethod.GET,
+                    entity,
+                    Resource.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                try (InputStream inputStream = response.getBody().getInputStream()) {
+                    String safeFileName = UUID.randomUUID() + ".png";
+                    Path targetPath = avatarDir.resolve(safeFileName);
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    return CompletableFuture.completedFuture("/" + AVATAR_DIR + "/" + safeFileName);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to download avatar for GitHub ID {}: {}", githubId, e.getMessage());
+        }
+
+        return CompletableFuture.completedFuture(DEFAULT_AVATAR_URL);
     }
 }

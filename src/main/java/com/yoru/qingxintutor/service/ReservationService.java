@@ -3,10 +3,7 @@ package com.yoru.qingxintutor.service;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.*;
 import com.yoru.qingxintutor.pojo.dto.request.ReservationCreateRequest;
-import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
-import com.yoru.qingxintutor.pojo.entity.UserEntity;
-import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
-import com.yoru.qingxintutor.pojo.entity.UserVoucherEntity;
+import com.yoru.qingxintutor.pojo.entity.*;
 import com.yoru.qingxintutor.pojo.result.ReservationInfoResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +48,9 @@ public class ReservationService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserEmailMapper emailMapper;
 
     @Autowired
     private EmailUtils emailUtils;
@@ -159,12 +159,13 @@ public class ReservationService {
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                 reservation.getDuration());
         notificationService.createPersonalNotification(teacherUserId, title, content);
-        emailUtils.sendNewReservationRequestToTeacher(userMapper.findById(teacherUserId)
-                        .orElseThrow(() -> new BusinessException("User not found")).getEmail(),
-                teacherName,
-                username,
-                reservation.getStartTime(),
-                reservation.getDuration());
+        emailMapper.selectByUserId(teacherUserId).map(UserEmailEntity::getEmail).ifPresent(
+                email -> emailUtils.sendNewReservationRequestToTeacher(email,
+                        teacherName,
+                        username,
+                        reservation.getStartTime(),
+                        reservation.getDuration())
+        );
 
         return entityToResult(reservation, username, teacherName, request.getSubjectName().trim());
     }
@@ -239,8 +240,10 @@ public class ReservationService {
         String title = "预约课程已结课";
         String contentStudent = String.format("恭喜您！预约课程 %d 已结课，相关奖学券已发放，请进入钱包界面查收。", reservation.getId());
         notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
-        emailUtils.sendCourseCompletedWithVoucherToStudent(student.getEmail(), student.getUsername(),
-                reservation.getId(), voucher.getAmount());
+        emailMapper.selectByUserId(student.getId()).map(UserEmailEntity::getEmail).ifPresent(
+                email -> emailUtils.sendCourseCompletedWithVoucherToStudent(email,
+                        student.getUsername(), reservation.getId(), voucher.getAmount())
+        );
     }
 
 
@@ -257,11 +260,13 @@ public class ReservationService {
                         notificationService.createPersonalNotification(reservation.getUserId(),
                                 "课程开始提醒",
                                 "您的课程将在十分钟后开始! 请记得准时参加课程。");
-                        emailUtils.sendLessonReminder(student.getEmail(),
-                                student.getUsername(),
-                                teacherName,
-                                reservation.getStartTime(),
-                                reservation.getDuration()
+                        emailMapper.selectByUserId(student.getId()).map(UserEmailEntity::getEmail).ifPresent(
+                                email -> emailUtils.sendLessonReminder(email,
+                                        student.getUsername(),
+                                        teacherName,
+                                        reservation.getStartTime(),
+                                        reservation.getDuration()
+                                )
                         );
                         log.debug("Scheduled task: success to send lesson reminder for reservation ID: {}", reservation.getId());
                     } catch (Exception e) {
@@ -286,8 +291,10 @@ public class ReservationService {
                     String title = "预约课程已结课";
                     String contentStudent = String.format("恭喜您！预约课程 %d 已结课，相关奖学券已发放，请进入钱包界面查收。", reservation.getId());
                     notificationService.createPersonalNotification(reservation.getUserId(), title, contentStudent);
-                    emailUtils.sendCourseCompletedWithVoucherToStudent(student.getEmail(), student.getUsername(),
-                            reservation.getId(), voucher.getAmount());
+                    emailMapper.selectByUserId(student.getId()).map(UserEmailEntity::getEmail).ifPresent(
+                            email -> emailUtils.sendCourseCompletedWithVoucherToStudent(email,
+                                    student.getUsername(), reservation.getId(), voucher.getAmount())
+                    );
                     log.debug("Scheduled task: success to auto complete reservation {}", reservation.getId());
                 });
     }

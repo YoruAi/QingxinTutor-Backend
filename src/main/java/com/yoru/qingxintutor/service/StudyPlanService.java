@@ -2,11 +2,13 @@ package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.SubjectMapper;
+import com.yoru.qingxintutor.mapper.UserEmailMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
 import com.yoru.qingxintutor.mapper.UserStudyPlanMapper;
 import com.yoru.qingxintutor.pojo.dto.request.StudyPlanCreateRequest;
 import com.yoru.qingxintutor.pojo.dto.request.StudyPlanUpdateRequest;
 import com.yoru.qingxintutor.pojo.entity.SubjectEntity;
+import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserStudyPlanEntity;
 import com.yoru.qingxintutor.pojo.result.StudyPlanInfoResult;
@@ -37,6 +39,9 @@ public class StudyPlanService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserEmailMapper emailMapper;
 
     @Autowired
     private EmailUtils emailUtils;
@@ -172,8 +177,10 @@ public class StudyPlanService {
                         plan.getTargetCompletionTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd/HH:mm")),
                         subjectMapper.findById(plan.getSubjectId()).map(SubjectEntity::getSubjectName).orElse("Unknown"));
                 notificationService.createPersonalNotification(plan.getUserId(), title, content);
-                emailUtils.sendStudyPlanReminderToStudent(student.getEmail(), student.getUsername(),
-                        plan.getTitle(), plan.getContent(), plan.getTargetCompletionTime());
+                emailMapper.selectByUserId(student.getId()).map(UserEmailEntity::getEmail).ifPresent(
+                        email -> emailUtils.sendStudyPlanReminderToStudent(email,
+                                student.getUsername(), plan.getTitle(), plan.getContent(), plan.getTargetCompletionTime())
+                );
                 log.debug("Scheduled task: success to send studyplan reminder for plan ID: {}", plan.getId());
             } catch (Exception e) {
                 log.error("Failed to send reminder for plan ID: {}, {}", plan.getId()

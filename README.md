@@ -31,21 +31,21 @@ Messages, Plans, AI insight.
 
 1. 申请并配置163邮箱SMTP，填写邮箱账号与SMTP授权码；
 
-   `spring.mail.username`
+   *`spring.mail.username`
 
-   `spring.mail.password`
+   *`spring.mail.password`
 
 2. 创建数据库(MySQL)并填入数据库访问相关配置；
 
    `spring.datasource.url`
 
-   `spring.datasource.username`
+   *`spring.datasource.username`
 
-   `spring.datasource.password`
+   *`spring.datasource.password`
 
 3. 申请 AI API，访问火山引擎 Ark 平台，开通模型并填入配置；
 
-   `app.ai.api-key`
+   *`app.ai.api-key`
 
    `app.ai.base-url`
 
@@ -53,11 +53,19 @@ Messages, Plans, AI insight.
 
 4. 设置JWT密钥。
 
-   `app.jwt.secret`
+   *`app.jwt.secret`
 
 5. 设置文件上传本地目录`UPLOAD_BASE_DIR`环境变量如`C:/Temp`。
 
-6. 使用Jasypt加密所有敏感值并设置`JASYPT_KEY`密钥环境变量与加密时使用的加密参数；
+6. 创建GitHub OAuth应用，并填入配置；
+
+   `app.oauth.github.client-id`
+
+   *`app.oauth.github.client-secret`
+
+   `app.oauth.github.redirect-url`
+
+7. 使用Jasypt加密所有敏感值（例如以上加*号的配置）并设置`JASYPT_KEY`密钥环境变量与加密时使用的加密参数；
 
    `jasypt.encryptor.**`
 

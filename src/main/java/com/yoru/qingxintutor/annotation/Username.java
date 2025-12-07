@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Username {
-    String message() default "Username can only contain letters, digits, and underscores (a-z, A-Z, 0-9, _)";
+    String message() default "Username invalid";
 
     Class<?>[] groups() default {};
 

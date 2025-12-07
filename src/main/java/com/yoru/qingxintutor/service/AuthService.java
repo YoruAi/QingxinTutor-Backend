@@ -1,18 +1,15 @@
 package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
-import com.yoru.qingxintutor.mapper.SubjectMapper;
-import com.yoru.qingxintutor.mapper.TeacherMapper;
-import com.yoru.qingxintutor.mapper.TeacherSubjectMapper;
-import com.yoru.qingxintutor.mapper.UserMapper;
-import com.yoru.qingxintutor.pojo.dto.request.TeacherRegisterRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserLoginRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserRegisterRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserResetPasswordRequest;
+import com.yoru.qingxintutor.mapper.*;
+import com.yoru.qingxintutor.pojo.dto.request.*;
 import com.yoru.qingxintutor.pojo.entity.TeacherEntity;
+import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
+import com.yoru.qingxintutor.pojo.entity.UserGithubEntity;
 import com.yoru.qingxintutor.pojo.result.UserAuthResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
+import com.yoru.qingxintutor.utils.GithubOauthUtils;
 import com.yoru.qingxintutor.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +21,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -32,6 +30,15 @@ public class AuthService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserEmailMapper emailMapper;
+
+    @Autowired
+    private UserGithubMapper githubMapper;
 
     @Autowired
     private TeacherMapper teacherMapper;
@@ -60,14 +67,17 @@ public class AuthService {
     @Autowired
     private WalletService walletService;
 
+    @Autowired
+    private AvatarService avatarService;
+
     @Transactional
     public UserAuthResult registerStudent(UserRegisterRequest request) {
         // 0. 校验
-        verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
+        verificationCodeService.attemptVerifyCode(request.getEmail().trim(), request.getCode());
         if (userMapper.findByUsername(request.getUsername()).isPresent()) {
             throw new BusinessException("Username already taken");
         }
-        if (userMapper.findByEmail(request.getEmail()).isPresent()) {
+        if (emailMapper.selectByEmail(request.getEmail().trim()).isPresent()) {
             throw new BusinessException("Email already registered");
         }
 
@@ -76,23 +86,24 @@ public class AuthService {
         UserEntity user = UserEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .username(request.getUsername())
-                .email(request.getEmail())
-                .passwdHash(passwordEncoder.encode(request.getPassword()))
+                .passwdHash(request.getPassword() != null ? passwordEncoder.encode(request.getPassword()) : null)
                 .role(UserEntity.Role.STUDENT)
                 .createTime(now)
                 .updateTime(now)
                 .build();
         userMapper.insert(user);
         request.setPassword(null);
+        UserEmailEntity emailEntity = UserEmailEntity.builder()
+                .userId(user.getId())
+                .email(request.getEmail().trim())
+                .build();
+        emailMapper.insert(emailEntity);
 
         // 2. 创建钱包（核心附属数据）
         walletService.create(user.getId());
 
-        // 3. 生成 JWT 令牌（通常包含用户ID）
-        String token = jwtUtils.generateToken(user.getId());
-
         // 注册邮件与欢迎通知
-        emailUtils.sendRegisterSuccess(user.getEmail(), user.getUsername());
+        emailUtils.sendRegisterSuccess(emailEntity.getEmail(), user.getUsername());
         notificationService.createPersonalNotification(user.getId(),
                 "Welcome to Qingxin Tutor App",
                 "Hello user " + user.getUsername() +
@@ -100,15 +111,7 @@ public class AuthService {
                         "Remember to complete your personal information as quickly as you can."
         );
 
-        return UserAuthResult.builder()
-                .token(token)
-                .expireIn(jwtUtils.getJwtExpiration())
-                .user(UserAuthResult.AuthedUser.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .role(UserEntity.Role.STUDENT)
-                        .build())
-                .build();
+        return createUserAuthResult(user);
     }
 
     @Transactional
@@ -119,7 +122,7 @@ public class AuthService {
         if (userMapper.findByUsername(request.getUserRegisterRequest().getUsername()).isPresent()) {
             throw new BusinessException("Username already taken");
         }
-        if (userMapper.findByEmail(request.getUserRegisterRequest().getEmail()).isPresent()) {
+        if (emailMapper.selectByEmail(request.getUserRegisterRequest().getEmail()).isPresent()) {
             throw new BusinessException("Email already registered");
         }
 
@@ -128,14 +131,19 @@ public class AuthService {
         UserEntity user = UserEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .username(request.getUserRegisterRequest().getUsername())
-                .email(request.getUserRegisterRequest().getEmail())
-                .passwdHash(passwordEncoder.encode(request.getUserRegisterRequest().getPassword()))
+                .passwdHash(request.getUserRegisterRequest().getPassword() != null ?
+                        passwordEncoder.encode(request.getUserRegisterRequest().getPassword()) : null)
                 .role(UserEntity.Role.TEACHER)
                 .createTime(now)
                 .updateTime(now)
                 .build();
         userMapper.insert(user);
         request.getUserRegisterRequest().setPassword(null);
+        UserEmailEntity emailEntity = UserEmailEntity.builder()
+                .userId(user.getId())
+                .email(request.getUserRegisterRequest().getEmail().trim())
+                .build();
+        emailMapper.insert(emailEntity);
 
         // 2. 创建教师相关数据
         TeacherEntity teacher = TeacherEntity.builder()
@@ -151,28 +159,24 @@ public class AuthService {
                 .grade(request.getTeacherInfo().getGrade())
                 .build();
         teacherMapper.insert(teacher);
-        // 更新科目信息
-        // 获取请求中的新 subjectId 列表
+        // 创建科目信息
         List<String> subjectNames = request.getTeacherInfo().getSubjectNames();
-        List<Long> newSubjectIds = new ArrayList<>();
+        List<Long> subjectIds = new ArrayList<>();
         if (subjectNames != null && !subjectNames.isEmpty()) {
             List<String> validSubjects = subjectNames.stream()
                     .filter(s -> s != null && !s.isBlank())
                     .map(String::trim)
                     .distinct()
                     .toList();
-            newSubjectIds = subjectMapper.findIdsByNames(validSubjects);
-            if (newSubjectIds.size() != validSubjects.size()) {
+            subjectIds = subjectMapper.findIdsByNames(validSubjects);
+            if (subjectIds.size() != validSubjects.size()) {
                 throw new BusinessException("One or more subjects do not exist");
             }
         }
-        teacherSubjectMapper.batchInsert(teacher.getId(), new ArrayList<>(newSubjectIds));
-
-        // 3. 生成 JWT 令牌（通常包含用户ID）
-        String token = jwtUtils.generateToken(user.getId());
+        teacherSubjectMapper.batchInsert(teacher.getId(), subjectIds);
 
         // 注册邮件与欢迎通知
-        emailUtils.sendRegisterSuccess(user.getEmail(), user.getUsername());
+        emailUtils.sendRegisterSuccess(emailEntity.getEmail(), user.getUsername());
         notificationService.createPersonalNotification(user.getId(),
                 "Welcome to Qingxin Tutor App",
                 "Hello teacher " + user.getUsername() +
@@ -180,71 +184,131 @@ public class AuthService {
                         "Remember to complete your personal information as quickly as you can."
         );
 
-        return UserAuthResult.builder()
-                .token(token)
-                .expireIn(jwtUtils.getJwtExpiration())
-                .user(UserAuthResult.AuthedUser.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .role(user.getRole())
-                        .build())
-                .build();
+        return createUserAuthResult(user);
     }
 
-    public UserAuthResult login(UserLoginRequest request) {
+    @Transactional
+    public UserAuthResult passwordLogin(UserLoginPasswordRequest request) {
         UserEntity user;
-        // 方式1：用户名 + 密码
+        // 登录方式1：用户名 + 密码
         if (StringUtils.hasText(request.getUsername())) {
             user = userMapper.findByUsername(request.getUsername())
                     .orElseThrow(() -> new BusinessException("Invalid username/email or password"));
-            if (!passwordEncoder.matches(request.getPassword(), user.getPasswdHash())) {
-                throw new BusinessException("Password error");
+            if (user.getPasswdHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswdHash())) {
+                throw new BusinessException("Invalid username/email or password");
             }
         }
-        // 方式2或3：通过邮箱
+        // 登录方式2：邮箱 + 密码
         else if (StringUtils.hasText(request.getEmail())) {
-            user = userMapper.findByEmail(request.getEmail())
+            String userId = emailMapper.selectByEmail(request.getEmail().trim())
+                    .orElseThrow(() -> new BusinessException("Invalid username/email or password"))
+                    .getUserId();
+            user = userMapper.findById(userId)
                     .orElseThrow(() -> new BusinessException("Invalid username/email or password"));
-
-            // 方式2：邮箱 + 密码
-            if (StringUtils.hasText(request.getPassword())) {
-                if (!passwordEncoder.matches(request.getPassword(), user.getPasswdHash())) {
-                    throw new BusinessException("Invalid username/email or password");
-                }
+            if (user.getPasswdHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswdHash())) {
+                throw new BusinessException("Invalid username/email or password");
             }
-            // 方式3：邮箱 + 验证码
-            else if (StringUtils.hasText(request.getCode())) {
-                verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
-            } else {
-                throw new BusinessException("Invalid login argument");
-            }
-
         } else {
-            throw new BusinessException("Invalid login argument");
+            throw new BusinessException("Invalid password login argument");
         }
 
-        // 生成 Token
-        String token = jwtUtils.generateToken(user.getId());
-
-        return UserAuthResult.builder()
-                .token(token)
-                .expireIn(jwtUtils.getJwtExpiration())
-                .user(UserAuthResult.AuthedUser.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .role(user.getRole())
-                        .build())
-                .build();
+        return createUserAuthResult(user);
     }
 
+    @Transactional
+    public UserAuthResult emailLogin(UserLoginEmailRequest request) {
+        // 登录方式3：邮箱 + 验证码
+        if (emailMapper.selectByEmail(request.getEmail().trim()).isEmpty()) {
+            // 若未注册则自动注册（用户名为邮箱）
+            return registerStudent(UserRegisterRequest.builder()
+                    .username("email_" + request.getEmail().trim())
+                    .password(null)
+                    .email(request.getEmail())
+                    .code(request.getCode())
+                    .build());
+        } else {
+            verificationCodeService.attemptVerifyCode(request.getEmail().trim(), request.getCode());
+            String userId = emailMapper.selectByEmail(request.getEmail().trim())
+                    .orElseThrow(() -> new BusinessException("Invalid username/email or password"))
+                    .getUserId();
+            UserEntity user = userMapper.findById(userId)
+                    .orElseThrow(() -> new BusinessException("Invalid username/email or password"));
+            return createUserAuthResult(user);
+        }
+    }
+
+    @Transactional
+    public UserAuthResult githubLogin(GithubOauthUtils.GithubUserInfo githubUserInfo) {
+        Integer githubUserId = githubUserInfo.getId();
+        String githubUsername = githubUserInfo.getLogin();
+        String avatarUrl = githubUserInfo.getAvatarUrl();
+        Optional<String> optionalUserId = githubMapper.selectBySub(githubUserId.toString())
+                .map(UserGithubEntity::getUserId);
+        if (optionalUserId.isPresent()) {
+            UserEntity user = userMapper.findById(optionalUserId.get())
+                    .orElseThrow(() -> new BusinessException("User not found"));
+            String token = jwtUtils.generateToken(user.getId());
+            return UserAuthResult.builder()
+                    .token(token)
+                    .expireIn(jwtUtils.getJwtExpiration())
+                    .user(UserAuthResult.AuthedUser.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .role(user.getRole())
+                            .build())
+                    .build();
+        } else {
+            LocalDateTime now = LocalDateTime.now();
+            UserEntity user = UserEntity.builder()
+                    .id(UUID.randomUUID().toString())
+                    .username(githubUsername)
+                    .passwdHash(null)
+                    .role(UserEntity.Role.STUDENT)
+                    .icon(AvatarService.DEFAULT_AVATAR_URL)
+                    .createTime(now)
+                    .updateTime(now)
+                    .build();
+            userMapper.insert(user);
+            // 保存github头像至本地
+            avatarService.saveAvatarToLocal(githubUserId.toString(), avatarUrl)
+                    .thenAccept(localUrl -> {
+                        if (user.getIcon().equals(AvatarService.DEFAULT_AVATAR_URL)) {
+                            userService.updateAvatar(user.getId(), localUrl);
+                        }
+                    });
+            UserGithubEntity githubEntity = UserGithubEntity.builder()
+                    .userId(user.getId())
+                    .sub(githubUserId.toString())
+                    .build();
+            githubMapper.insert(githubEntity);
+
+            // 2. 创建钱包（核心附属数据）
+            walletService.create(user.getId());
+
+
+            // 欢迎通知
+            notificationService.createPersonalNotification(user.getId(),
+                    "Welcome to Qingxin Tutor App",
+                    "Hello user " + user.getUsername() +
+                            ". Now, you can search for excellent teachers and send reservation! " +
+                            "Remember to complete your personal information as quickly as you can."
+            );
+
+            return createUserAuthResult(user);
+        }
+    }
+
+    @Transactional
     public void resetPassword(UserResetPasswordRequest request) {
         // 0. 校验
-        verificationCodeService.attemptVerifyCode(request.getEmail(), request.getCode());
-        UserEntity user = userMapper.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException("Invalid email or password"));
-
+        verificationCodeService.attemptVerifyCode(request.getEmail().trim(), request.getCode());
+        String userId = emailMapper.selectByEmail(request.getEmail().trim())
+                .orElseThrow(() -> new BusinessException("Invalid email or password"))
+                .getUserId();
+        UserEntity user = userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"));
         // 1. 禁止新密码与旧密码相同
-        if (passwordEncoder.matches(request.getNewPassword(), user.getPasswdHash())) {
+        if (user.getPasswdHash() != null && passwordEncoder.matches(request.getNewPassword(), user.getPasswdHash())) {
             throw new BusinessException("New password cannot be the same as old password");
         }
 
@@ -255,5 +319,34 @@ public class AuthService {
 
         // 3. 更新数据库
         userMapper.updatePassword(user.getId(), newHash);
+    }
+
+
+    public UserAuthResult createUserAuthResult(UserEntity user) {
+        // 生成 JWT 令牌（包含用户ID）
+        String token = jwtUtils.generateToken(user.getId());
+        return UserAuthResult.builder()
+                .token(token)
+                .expireIn(jwtUtils.getJwtExpiration())
+                .user(UserAuthResult.AuthedUser.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .role(user.getRole())
+                        .build())
+                .build();
+    }
+
+    public boolean hasEmail(String userId) {
+        return emailMapper.selectByUserId(userId).isPresent();
+    }
+
+    public boolean hasGithub(String userId) {
+        return githubMapper.selectByUserId(userId).isPresent();
+    }
+
+    public boolean hasPassword(String userId) {
+        return userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"))
+                .getPasswdHash() != null;
     }
 }

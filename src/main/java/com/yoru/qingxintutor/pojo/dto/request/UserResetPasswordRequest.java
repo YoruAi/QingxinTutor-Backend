@@ -14,6 +14,7 @@ import lombok.*;
 @EqualsAndHashCode(exclude = {"newPassword", "code"})
 public class UserResetPasswordRequest {
     @NotBlank(message = "Email is required")
+    @Size(min = 1, max = 100, message = "Email must be between 1 and 100 characters")
     @Email(message = "Invalid email format")
     private String email;
 

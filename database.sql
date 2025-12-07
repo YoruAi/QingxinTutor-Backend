@@ -8,13 +8,30 @@ CREATE TABLE user
     id          CHAR(36) PRIMARY KEY                 DEFAULT (UUID()),
     username    VARCHAR(50)                 NOT NULL UNIQUE,
     nickname    VARCHAR(50),
-    email       VARCHAR(100)                NOT NULL UNIQUE,
-    icon        VARCHAR(255),                         -- should starts with "/avatar/"
+    icon        VARCHAR(255),                     -- should starts with "/avatar/"
     address     VARCHAR(255),
-    passwd_hash VARCHAR(255)                NOT NULL, -- hashed
+    passwd_hash VARCHAR(255)                NULL, -- hashed
     role        ENUM ('STUDENT', 'TEACHER') NOT NULL DEFAULT 'STUDENT',
     create_time DATETIME                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+-- 1.1 user_email 邮箱绑定表
+CREATE TABLE user_email
+(
+    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id CHAR(36)     NOT NULL UNIQUE,
+    email   VARCHAR(100) NOT NULL UNIQUE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+-- 1.2 user_github github绑定表
+CREATE TABLE user_github
+(
+    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id CHAR(36)     NOT NULL UNIQUE,
+    sub     VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -286,14 +303,14 @@ VALUES ('数学', '中小学数学课程'),
        ('语文', '中小学语文阅读与写作');
 
 -- 2. 插入教师（注意 icon 格式）
-INSERT INTO user (id, username, nickname, email, address, passwd_hash, role)
-VALUES ('e0b78abe-d6fd-4e95-92e5-cb3aa150a428', '张伟', '张老师', 'QXTutorZhangWei@163.com', '北京市海淀区',
+INSERT INTO user (id, username, nickname, address, passwd_hash, role)
+VALUES ('e0b78abe-d6fd-4e95-92e5-cb3aa150a428', '张伟', '张老师', '北京市海淀区',
         '$2a$10$UPEuODQp2UoMBEah8eHHI.N81wy/wFlQp8tIFavFWy6fZiNY9a39G', 'TEACHER'),
-       ('0bfacca0-65c2-4c64-83a3-49c89468b07f', '李娜', '李老师', 'QXTutorLiNa@163.com', '上海市浦东新区',
+       ('0bfacca0-65c2-4c64-83a3-49c89468b07f', '李娜', '李老师', '上海市浦东新区',
         '$2a$10$VxgRR.tFHYs./jh2TVx.oe.j3hhlW2JM0sH66XJtqehGuJ4NvqQ9W', 'TEACHER'),
-       ('4beb6621-97de-4b41-901c-389a4bbfb4f1', '王强', '王老师', 'QXTutorWangQiang@163.com', '广州市天河区',
+       ('4beb6621-97de-4b41-901c-389a4bbfb4f1', '王强', '王老师', '广州市天河区',
         '$2a$10$ibCrERy77Je8Y0doJbgBJ.enKTTrJoh1e.TjzfdefS3EAZCELLLJS', 'TEACHER'),
-       ('5b92739f-b0cd-4098-af68-f8ca83d3187f', '陈芳', '陈老师', 'QXTutorChenFang@163.com', '深圳市南山区',
+       ('5b92739f-b0cd-4098-af68-f8ca83d3187f', '陈芳', '陈老师', '深圳市南山区',
         '$2a$10$TVt8r2KrbYjrnB/famJpBev5Sp5S38cWm45FRf4dihT1NBmpVTW6W', 'TEACHER')
 ;
 INSERT INTO teacher (user_id, phone, nickname, name, gender, birth_date, icon, address, teaching_experience,

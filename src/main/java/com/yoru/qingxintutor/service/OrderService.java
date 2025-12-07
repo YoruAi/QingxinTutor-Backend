@@ -1,13 +1,11 @@
 package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
-import com.yoru.qingxintutor.mapper.ReservationMapper;
-import com.yoru.qingxintutor.mapper.TeacherMapper;
-import com.yoru.qingxintutor.mapper.UserMapper;
-import com.yoru.qingxintutor.mapper.UserOrderMapper;
+import com.yoru.qingxintutor.mapper.*;
 import com.yoru.qingxintutor.pojo.dto.request.OrderCreateRequest;
 import com.yoru.qingxintutor.pojo.dto.request.OrderPayRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
+import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
 import com.yoru.qingxintutor.pojo.result.OrderInfoResult;
@@ -49,6 +47,9 @@ public class OrderService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserEmailMapper emailMapper;
 
     @Autowired
     private EmailUtils emailUtils;
@@ -117,12 +118,15 @@ public class OrderService {
                 order.getQuantity(),
                 total);
         notificationService.createPersonalNotification(order.getUserId(), title, content);
-        emailUtils.sendOrderCreatedToStudent(student.getEmail(),
-                student.getUsername(),
-                order.getPrice(),
-                order.getQuantity(),
-                total
+        emailMapper.selectByUserId(student.getId()).map(UserEmailEntity::getEmail).ifPresent(
+                email -> emailUtils.sendOrderCreatedToStudent(email,
+                        student.getUsername(),
+                        order.getPrice(),
+                        order.getQuantity(),
+                        total
+                )
         );
+
 
         return entityToResult(order, userMapper.findById(order.getUserId())
                 .orElseThrow(() -> new BusinessException("User not found"))

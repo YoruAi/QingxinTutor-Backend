@@ -14,8 +14,18 @@ public class UserInfoResult {
     private String id;
     private String username;
     private String nickname;
-    private String email;       // 可选：脱敏处理
     private String icon;
     private String address;
     private UserEntity.Role role;
+    private AuthInfo auth;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class AuthInfo {
+        private boolean hasPassword;
+        private String email;
+        private String githubId;
+    }
 }

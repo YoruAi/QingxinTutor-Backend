@@ -1,25 +1,23 @@
 package com.yoru.qingxintutor.pojo.dto.request;
 
-import com.yoru.qingxintutor.enums.EmailPurpose;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserSendCodeRequest {
+@ToString(exclude = {"code"})
+@EqualsAndHashCode(exclude = {"code"})
+public class UserUpdateEmailRequest {
     @NotBlank(message = "Email is required")
     @Size(min = 1, max = 100, message = "Email must be between 1 and 100 characters")
     @Email(message = "Invalid email format")
-    private String email;
+    private String newEmail;
 
-    @NotNull(message = "Purpose is required")
-    private EmailPurpose purpose;
+    @NotBlank(message = "Code is required")
+    @Size(min = 6, max = 6, message = "Code must be 6 characters")
+    private String code;
 }

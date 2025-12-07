@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.UserGithubMapper">
+    <resultMap id="BaseResultMap" type="com.yoru.qingxintutor.pojo.entity.UserGithubEntity">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="sub" property="sub"/>
+    </resultMap>
+
+    <!-- 插入记录 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_github (user_id, sub)
+        VALUES (#{userId}, #{sub})
+    </insert>
+
+    <!-- 根据 GitHub sub 查询 -->
+    <select id="selectBySub" resultMap="BaseResultMap">
+        SELECT id, user_id, sub
+        FROM user_github
+        WHERE sub = #{sub}
+    </select>
+
+    <!-- 根据 user_id 查询 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT id, user_id, sub
+        FROM user_github
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据 user_id 删除 -->
+    <delete id="deleteByUserId">
+        DELETE
+        FROM user_github
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>

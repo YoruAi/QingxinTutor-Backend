@@ -44,6 +44,11 @@ pagehelper:
   support-methods-arguments: true
   params: count=countSql
 app:
+  oauth:
+    github:
+      client-id: Ov23lio5To7yiJd7E2PZ
+      client-secret: ENC(CnjQJCycGlVKNV1uigOpUBwAa9loEVU5a/pEEprHLZj9m8cDe/4eAkUrf8+ODaM66FFfqtszAEKMizAcO7AUrzepftUF7tdzrFEI5VDH+08=)
+      redirect-url: qingxintutor://github-callback
   jwt:
     secret: ENC(Rr4MPfEWOCuVM2prCThw1Gje7zGgJCqAPufYrnyE+DDX1CRkwz8pgC8hNtF9xhWds8ZHTrCiQ4Z1GvNiCV3hqbzPEna8BAprkXmygfjobCI=)
     expiration: 604800000  # ms

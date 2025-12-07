@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoru.qingxintutor.mapper.UserEmailMapper">
+    <resultMap id="BaseResultMap" type="com.yoru.qingxintutor.pojo.entity.UserEmailEntity">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <!-- 插入记录 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_email (user_id, email)
+        VALUES (#{userId}, #{email})
+    </insert>
+
+    <!-- 根据 email 查询 -->
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        SELECT id, user_id, email
+        FROM user_email
+        WHERE email = #{email}
+    </select>
+
+    <!-- 根据 user_id 查询 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT id, user_id, email
+        FROM user_email
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据 user_id 删除 -->
+    <delete id="deleteByUserId">
+        DELETE
+        FROM user_email
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>

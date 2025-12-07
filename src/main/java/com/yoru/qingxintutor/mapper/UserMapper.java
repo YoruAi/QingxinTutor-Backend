@@ -25,11 +25,6 @@ public interface UserMapper {
     Optional<UserEntity> findByUsername(@Param("username") String username);
 
     /**
-     * 根据邮箱查询用户
-     */
-    Optional<UserEntity> findByEmail(@Param("email") String email);
-
-    /**
      * 查询所有用户（可加 limit 分页）
      */
     List<UserEntity> findAll();

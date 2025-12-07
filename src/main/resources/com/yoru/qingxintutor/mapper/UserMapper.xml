@@ -14,7 +14,6 @@
         id,
         username,
         nickname,
-        email,
         icon,
         address,
         passwd_hash,
@@ -27,7 +26,6 @@
         <id property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="nickname" column="nickname"/>
-        <result property="email" column="email"/>
         <result property="icon" column="icon"/>
         <result property="address" column="address"/>
         <result property="passwdHash" column="passwd_hash"/>
@@ -51,14 +49,6 @@
         FROM
         <include refid="tableName"/>
         WHERE username = #{username}
-    </select>
-
-    <select id="findByEmail" resultMap="UserResultMap">
-        SELECT
-        <include refid="allColumns"/>
-        FROM
-        <include refid="tableName"/>
-        WHERE email = #{email}
     </select>
 
     <!-- 查询全部 -->
@@ -93,9 +83,6 @@
             <if test="nickname != null and nickname != ''">
                 nickname,
             </if>
-            <if test="email != null and email != ''">
-                email,
-            </if>
             <if test="icon != null">
                 icon,
             </if>
@@ -124,9 +111,6 @@
             </if>
             <if test="nickname != null and nickname != ''">
                 #{nickname},
-            </if>
-            <if test="email != null and email != ''">
-                #{email},
             </if>
             <if test="icon != null">
                 #{icon},

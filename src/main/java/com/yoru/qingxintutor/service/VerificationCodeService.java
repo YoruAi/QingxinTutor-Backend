@@ -3,11 +3,12 @@ package com.yoru.qingxintutor.service;
 import com.yoru.qingxintutor.enums.EmailPurpose;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.EmailVerificationCodeMapper;
-import com.yoru.qingxintutor.mapper.UserMapper;
+import com.yoru.qingxintutor.mapper.UserEmailMapper;
 import com.yoru.qingxintutor.pojo.entity.EmailVerificationCodeEntity;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +28,17 @@ public class VerificationCodeService {
     @Autowired
     private EmailVerificationCodeMapper emailVerificationCodeMapper;
 
+    @Lazy
     @Autowired
-    private UserMapper userMapper;
+    private VerificationCodeService self;
+
+    @Autowired
+    private UserEmailMapper emailMapper;
 
     @Autowired
     private EmailUtils emailUtils;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void attemptVerifyCode(String email, String inputCode) {
         // 1. 查验证码记录
         EmailVerificationCodeEntity codeRecord = emailVerificationCodeMapper.selectByEmail(email)
@@ -50,8 +55,7 @@ public class VerificationCodeService {
         }
 
         // 4. 增加尝试次数
-        codeRecord.setAttemptCount(codeRecord.getAttemptCount() + 1);
-        emailVerificationCodeMapper.updateAttemptCountByEmail(email, codeRecord.getAttemptCount());
+        self.incrementAttemptCount(codeRecord);
 
         // 5. 验证码是否正确
         if (!codeRecord.getCode().equals(inputCode)) {
@@ -62,13 +66,19 @@ public class VerificationCodeService {
         emailVerificationCodeMapper.deleteByEmail(email);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void incrementAttemptCount(EmailVerificationCodeEntity codeRecord) {
+        codeRecord.setAttemptCount(codeRecord.getAttemptCount() + 1);
+        emailVerificationCodeMapper.updateAttemptCountByEmail(codeRecord.getEmail(), codeRecord.getAttemptCount());
+    }
+
     public void sendVerificationCode(String email, EmailPurpose purpose) {
         // 0. 注册用户必须未注册
-        if (purpose == EmailPurpose.REGISTER && userMapper.findByEmail(email).isPresent()) {
+        if (purpose == EmailPurpose.REGISTER && emailMapper.selectByEmail(email).isPresent()) {
             return;
         }
         // 1. 校验邮箱是否注册
-        if (purpose != EmailPurpose.REGISTER && userMapper.findByEmail(email).isEmpty()) {
+        if (purpose != EmailPurpose.REGISTER && emailMapper.selectByEmail(email).isEmpty()) {
             return;
         }
 
