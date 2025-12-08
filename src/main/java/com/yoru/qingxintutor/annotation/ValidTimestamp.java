@@ -24,7 +24,6 @@ public @interface ValidTimestamp {
 }
 
 class TimestampValidator implements ConstraintValidator<ValidTimestamp, Instant> {
-
     private long maxOffsetMillis;
 
     @Override
@@ -35,6 +34,8 @@ class TimestampValidator implements ConstraintValidator<ValidTimestamp, Instant>
     @Override
     public boolean isValid(@NotNull(message = "Invalid timestamp") Instant value,
                            ConstraintValidatorContext context) {
+        if (value == null)
+            return true;
         long now = System.currentTimeMillis();
         long timestamp = value.toEpochMilli();
         long diff = Math.abs(now - timestamp);
