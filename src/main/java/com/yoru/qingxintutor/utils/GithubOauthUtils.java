@@ -20,17 +20,17 @@ import java.util.Objects;
 public class GithubOauthUtils {
     private final String CLIENT_ID;
     private final String CLIENT_SECRET;
-    private final String REDIRECT_URL;
+    private final String REDIRECT_URI;
 
     @Autowired
     private RestTemplate restTemplate;
 
     public GithubOauthUtils(@Value("${app.oauth.github.client-id}") String clientId,
                             @Value("${app.oauth.github.client-secret}") String clientSecret,
-                            @Value("${app.oauth.github.redirect-url}") String redirectUrl) {
+                            @Value("${app.oauth.github.redirect-uri}") String redirectUri) {
         CLIENT_ID = clientId;
         CLIENT_SECRET = clientSecret;
-        REDIRECT_URL = redirectUrl;
+        REDIRECT_URI = redirectUri;
     }
 
     @Data
@@ -52,7 +52,7 @@ public class GithubOauthUtils {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", CLIENT_ID);
         body.add("client_secret", CLIENT_SECRET);
-        body.add("redirect_uri", REDIRECT_URL);
+        body.add("redirect_uri", REDIRECT_URI);
         body.add("code", code);
         body.add("code_verifier", code_verifier);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
