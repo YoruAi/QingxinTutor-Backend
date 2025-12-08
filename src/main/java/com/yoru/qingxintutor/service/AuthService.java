@@ -219,9 +219,10 @@ public class AuthService {
     public UserAuthResult emailLogin(UserLoginEmailRequest request) {
         // 登录方式3：邮箱 + 验证码
         if (emailMapper.selectByEmail(request.getEmail().trim()).isEmpty()) {
-            // 若未注册则自动注册（用户名为邮箱）
+            // 若未注册则自动注册（用户名为邮箱哈希值）
+            String username = "email_" + String.format("%08x", request.getEmail().trim().toLowerCase().hashCode());
             return registerStudent(UserRegisterRequest.builder()
-                    .username("email_" + request.getEmail().trim())
+                    .username(username)
                     .password(null)
                     .email(request.getEmail())
                     .code(request.getCode())
