@@ -115,3 +115,5 @@ Completed. New features will be added occasionally.
 (本项目目前只使用了timestamp限制防重放)、加入管理员身份等。希望我的代码具备良好的可拓展性、可重构性和可读性，能帮助到各位开发者们。
 
 请勿照搬照抄，若有疑问请发表Discussions或提交Issue。欢迎各位开发者们批评指正。
+
+[![wakatime](https://wakatime.com/badge/user/a043e842-cadf-4159-83cf-53e58cb1748b/project/59aa1813-b12c-4101-987e-40e356b30f33.svg)](https://wakatime.com/badge/user/a043e842-cadf-4159-83cf-53e58cb1748b/project/59aa1813-b12c-4101-987e-40e356b30f33)
