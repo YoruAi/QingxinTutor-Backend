@@ -6,6 +6,8 @@ import com.yoru.qingxintutor.pojo.result.UserAuthResult;
 import com.yoru.qingxintutor.service.AuthService;
 import com.yoru.qingxintutor.service.VerificationCodeService;
 import com.yoru.qingxintutor.utils.GithubOauthUtils;
+import com.yoru.qingxintutor.utils.IPUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -70,10 +72,12 @@ public class AuthController {
         return ApiResult.success();
     }
 
-    // 发送验证码 - 每个验证码最多5次尝试次数，3分钟内有效；每个邮箱60秒最多发送一次验证码
+    // 发送验证码 - 每个验证码最多5次尝试次数，3分钟内有效；每个邮箱60秒最多发送一次验证码；每个IP/邮箱24h最多50次
     @PostMapping("/send-code")
-    public ApiResult<String> sendCode(@Valid @RequestBody UserSendCodeRequest userSendCodeRequest) {
-        verificationCodeService.sendVerificationCode(userSendCodeRequest.getEmail().trim(), userSendCodeRequest.getPurpose());
+    public ApiResult<String> sendCode(@Valid @RequestBody UserSendCodeRequest userSendCodeRequest,
+                                      HttpServletRequest request) {
+        String ip = IPUtils.getClientIpAddress(request);
+        verificationCodeService.sendVerificationCode(userSendCodeRequest.getEmail().trim(), ip, userSendCodeRequest.getPurpose());
         return ApiResult.success("If the email is valid, a verification code has been sent.");
     }
 }

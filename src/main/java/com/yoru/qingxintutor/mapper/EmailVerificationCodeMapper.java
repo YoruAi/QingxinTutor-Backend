@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Optional;
 
+@Deprecated(since = "2.1.0", forRemoval = true)
 @Mapper
 public interface EmailVerificationCodeMapper {
     Optional<EmailVerificationCodeEntity> selectByEmail(@Param("email") String email);

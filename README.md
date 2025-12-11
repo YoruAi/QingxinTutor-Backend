@@ -65,7 +65,15 @@ Messages, Plans, AI insight.
 
    `app.oauth.github.redirect-url`
 
-7. 使用Jasypt加密所有敏感值（例如以上加*号的配置）并设置`JASYPT_KEY`密钥环境变量与加密时使用的加密参数；
+7. 启动Redis服务并填写配置。
+
+   `spring.data.redis.host`
+
+   `spring.data.redis.port`
+
+   *`spring.data.redis.password`
+
+8. 使用Jasypt加密所有敏感值（例如以上加*号的配置）并设置`JASYPT_KEY`密钥环境变量与加密时使用的加密参数；
 
    `jasypt.encryptor.**`
 

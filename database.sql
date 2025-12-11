@@ -17,7 +17,7 @@ CREATE TABLE user
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- 1.1 user_email 邮箱绑定表
+-- 2.1 user_email 邮箱绑定表
 CREATE TABLE user_email
 (
     id      BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -26,24 +26,12 @@ CREATE TABLE user_email
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- 1.2 user_github github绑定表
+-- 2.2 user_github github绑定表
 CREATE TABLE user_github
 (
     id      BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id CHAR(36)     NOT NULL UNIQUE,
     sub     VARCHAR(100) NOT NULL UNIQUE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
-
--- 2. email_verification_code 邮箱验证码表
-CREATE TABLE email_verification_code
-(
-    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
-    email         VARCHAR(100) NOT NULL UNIQUE,
-    code          CHAR(6)      NOT NULL,
-    attempt_count INT          NOT NULL default 0, -- limit 5
-    expire_time   DATETIME     NOT NULL,
-    create_time   DATETIME     NOT NULL
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -276,7 +264,8 @@ CREATE TABLE private_messages
 -- DANGEROUS ZONE --
 -- 清空所有表
 TRUNCATE TABLE user;
-TRUNCATE TABLE email_verification_code;
+TRUNCATE TABLE user_email;
+TRUNCATE TABLE user_github;
 TRUNCATE TABLE teacher;
 TRUNCATE TABLE subject;
 TRUNCATE TABLE teacher_subject;
@@ -290,6 +279,9 @@ TRUNCATE TABLE app_feedback;
 TRUNCATE TABLE forum;
 TRUNCATE TABLE forum_message;
 TRUNCATE TABLE notification;
+TRUNCATE TABLE wallet_recharge_order;
+TRUNCATE TABLE private_chats;
+TRUNCATE TABLE private_messages;
 -- DANGEROUS ZONE --
 
 

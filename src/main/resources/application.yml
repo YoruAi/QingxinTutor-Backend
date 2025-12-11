@@ -11,6 +11,19 @@ spring:
     url: jdbc:mysql://localhost:3306/db_qingxin_tutor
     username: ENC(09LUbqP4f5OnCK7+UjRyYByGJLMyo72jS8tULPvu3L2004dMO4K94FuQzMYXggol)
     password: ENC(3pfs9B7/cfOzSIfskDMZKHdXHs5y9Vrb5PzK5BBORHYDwoz2+6e496ndHQ3VFGR7)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ENC(IgbGe8lD0U1OpgJ/6qjvdI7S+DC0U7FpaefY6Kz9F/3jsvzin9EU5HXtK+38pEpMMOkRfB5AtZevcjE78oNvQA==)
+      database: 0
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
   mail:
     host: smtp.163.com
     port: 465
