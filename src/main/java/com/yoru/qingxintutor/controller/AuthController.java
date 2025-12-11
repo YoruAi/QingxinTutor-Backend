@@ -1,5 +1,6 @@
 package com.yoru.qingxintutor.controller;
 
+import com.yoru.qingxintutor.annotation.AntiReplay;
 import com.yoru.qingxintutor.pojo.ApiResult;
 import com.yoru.qingxintutor.pojo.dto.request.*;
 import com.yoru.qingxintutor.pojo.result.UserAuthResult;
@@ -42,6 +43,7 @@ public class AuthController {
     }
 
     // 密码登录 - 无密码将无法使用密码登录
+    @AntiReplay
     @PostMapping("/login/password")
     public ApiResult<UserAuthResult> login(@Valid @RequestBody UserLoginPasswordRequest userLoginPasswordRequest) {
         UserAuthResult userAuthResult = authService.passwordLogin(userLoginPasswordRequest);
@@ -49,6 +51,7 @@ public class AuthController {
     }
 
     // 邮箱登录 - 未注册用户若使用邮箱验证码模式可直接注册
+    @AntiReplay
     @PostMapping("/login/email")
     public ApiResult<UserAuthResult> loginEmail(@Valid @RequestBody UserLoginEmailRequest userLoginEmailRequest) {
         UserAuthResult userAuthResult = authService.emailLogin(userLoginEmailRequest);
@@ -56,6 +59,7 @@ public class AuthController {
     }
 
     // Github登录 - 未注册用户使用Github模式可直接注册
+    @AntiReplay
     @PostMapping("/login/github")
     public ApiResult<UserAuthResult> loginGithub(@Valid @RequestBody UserLoginGithubRequest userLoginGithubRequest) {
         GithubOauthUtils.GithubUserInfo githubUserInfo = githubOauthUtils

@@ -2,12 +2,12 @@ package com.yoru.qingxintutor.pojo.dto.request;
 
 import com.yoru.qingxintutor.annotation.OptionalNotBlank;
 import com.yoru.qingxintutor.annotation.Username;
-import com.yoru.qingxintutor.annotation.ValidTimestamp;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.util.StringUtils;
-
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -28,11 +28,6 @@ public class UserLoginPasswordRequest {
 
     @NotBlank(message = "Password cannot be composed of only whitespace characters")
     private String password;
-
-    // 防重放
-    @NotNull(message = "Timestamp is required")
-    @ValidTimestamp
-    private Instant timestamp;
 
     // 校验
     // - username + password

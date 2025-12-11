@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.lang.annotation.*;
 import java.time.Instant;
 
+@Deprecated(since = "2.2.0")
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = TimestampValidator.class)
@@ -20,15 +21,16 @@ public @interface ValidTimestamp {
 
     Class<? extends Payload>[] payload() default {};
 
-    long maxOffsetMillis() default 5000;    // 5秒
+    long maxOffsetSeconds() default 30;
 }
 
+@Deprecated(since = "2.2.0")
 class TimestampValidator implements ConstraintValidator<ValidTimestamp, Instant> {
     private long maxOffsetMillis;
 
     @Override
     public void initialize(ValidTimestamp annotation) {
-        this.maxOffsetMillis = annotation.maxOffsetMillis();
+        this.maxOffsetMillis = annotation.maxOffsetSeconds() * 1000;
     }
 
     @Override
