@@ -3,6 +3,7 @@ package com.yoru.qingxintutor.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoru.qingxintutor.filter.JwtAuthFilter;
 import com.yoru.qingxintutor.pojo.ApiResult;
+import com.yoru.qingxintutor.utils.IPUtils;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -48,18 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
                         .accessDeniedHandler((req, res, ex) -> {
-                            String clientIp;
-                            String xForwardedFor = req.getHeader("X-Forwarded-For");
-                            if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
-                                clientIp = xForwardedFor.split(",")[0].trim();
-                            } else {
-                                String xRealIp = req.getHeader("X-Real-IP");
-                                if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
-                                    clientIp = xRealIp;
-                                } else {
-                                    clientIp = req.getRemoteAddr();
-                                }
-                            }
+                            String clientIp = IPUtils.getClientIpAddress(req);
                             String requestUri = req.getRequestURI();
                             String method = req.getMethod();
                             String userAgent = req.getHeader("User-Agent");
@@ -91,18 +81,7 @@ public class SecurityConfig {
                             }
                         })
                         .authenticationEntryPoint((req, res, ex) -> {
-                            String clientIp;
-                            String xForwardedFor = req.getHeader("X-Forwarded-For");
-                            if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
-                                clientIp = xForwardedFor.split(",")[0].trim();
-                            } else {
-                                String xRealIp = req.getHeader("X-Real-IP");
-                                if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
-                                    clientIp = xRealIp;
-                                } else {
-                                    clientIp = req.getRemoteAddr();
-                                }
-                            }
+                            String clientIp = IPUtils.getClientIpAddress(req);
                             String requestUri = req.getRequestURI();
                             String method = req.getMethod();
                             String userAgent = req.getHeader("User-Agent");
