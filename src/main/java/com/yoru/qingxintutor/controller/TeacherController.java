@@ -11,7 +11,6 @@ import com.yoru.qingxintutor.service.AvatarService;
 import com.yoru.qingxintutor.service.TeacherService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -54,16 +53,6 @@ public class TeacherController {
     ) {
         return ApiResult.success(teacherService.filter(teacherSearchRequest, pageNum, pageSize));
     }
-
-    @GetMapping("/search")
-    public ApiResult<PageInfo<TeacherInfoResult>> search(
-            @Size(min = 1, message = "Text must be longer than 1 character") String text,
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "6") Integer pageSize
-    ) {
-        return ApiResult.success(teacherService.search(text, pageNum, pageSize));
-    }
-
 
     // Teacher Info
     @RequireTeacher

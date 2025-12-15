@@ -152,14 +152,6 @@ public class TeacherService {
         return queryPageByIds(() -> teacherMapper.findIdsByCriteria(request), pageNum, pageSize);
     }
 
-    /**
-     * 搜索查询教师信息
-     */
-    public PageInfo<TeacherInfoResult> search(String text, Integer pageNum, Integer pageSize) {
-        return queryPageByIds(() -> teacherMapper.searchByNameOrNicknameOrPhone(text), pageNum, pageSize);
-    }
-
-
     private PageInfo<TeacherInfoResult> queryPageByIds(
             Supplier<List<Long>> idSupplier,
             Integer pageNum, Integer pageSize) {

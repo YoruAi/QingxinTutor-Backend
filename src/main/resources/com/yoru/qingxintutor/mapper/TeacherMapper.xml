@@ -330,18 +330,6 @@
         ORDER BY trv.avg_rating DESC, t.create_time DESC, s.id
     </select>
 
-    <select id="searchByNameOrNicknameOrPhone" resultType="long">
-        SELECT
-        t.id
-        FROM teacher t
-        <include refid="avgRatingSubQuery"/>
-        WHERE
-        t.name LIKE CONCAT('%', #{keyword}, '%')
-        OR t.nickname LIKE CONCAT('%', #{keyword}, '%')
-        OR t.phone LIKE CONCAT('%', #{keyword}, '%')
-        ORDER BY trv.avg_rating DESC, t.create_time DESC
-    </select>
-
     <!-- findAll -->
     <select id="findAll" resultMap="TeacherInfoResultMap">
         SELECT
@@ -400,6 +388,13 @@
         t.id
         FROM teacher t
         <where>
+            <if test="text != null and !text.isEmpty()">
+                AND (
+                t.name LIKE CONCAT('%', #{text}, '%')
+                OR t.nickname LIKE CONCAT('%', #{text}, '%')
+                OR t.phone LIKE CONCAT('%', #{text}, '%')
+                )
+            </if>
             <if test="grade != null">
                 AND t.grade = #{grade}
             </if>
