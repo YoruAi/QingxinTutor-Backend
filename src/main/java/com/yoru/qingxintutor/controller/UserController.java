@@ -11,6 +11,7 @@ import com.yoru.qingxintutor.service.AvatarService;
 import com.yoru.qingxintutor.service.UserService;
 import com.yoru.qingxintutor.utils.GithubOauthUtils;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -27,6 +28,15 @@ public class UserController {
     private AvatarService avatarService;
     @Autowired
     private GithubOauthUtils githubOauthUtils;
+
+    @GetMapping("/{id}")
+    public ApiResult<UserInfoResult> getTeacher(@PathVariable("id")
+                                                @NotBlank(message = "Id cannot be composed of only whitespace characters")
+                                                String id) {
+        UserInfoResult result = userService.getInfo(id);
+        result.setAuth(null);
+        return ApiResult.success(result);
+    }
 
     // User Info
     @GetMapping("/me")
