@@ -109,7 +109,7 @@ public class ForumMessageWebSocket {
         log.error("WebSocket error: {}", error.getMessage());
     }
 
-    private void broadcast(Long forumId, String message) {
+    public void broadcast(Long forumId, String message) {
         FORUM_SESSIONS.getOrDefault(forumId, Set.of())
                 .forEach(s -> {
                     try {

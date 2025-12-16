@@ -123,7 +123,7 @@ public class PrivateChatWebSocket {
         log.error("WebSocket error: {}", error.getMessage());
     }
 
-    private void broadcast(Long chatId, String message) {
+    public void broadcast(Long chatId, String message) {
         PRIVATE_CHAT_SESSIONS.getOrDefault(chatId, Set.of())
                 .forEach(s -> {
                     try {

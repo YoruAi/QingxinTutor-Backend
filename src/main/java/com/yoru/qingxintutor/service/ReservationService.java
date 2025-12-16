@@ -1,11 +1,15 @@
 package com.yoru.qingxintutor.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.*;
+import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.dto.request.ReservationCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.*;
+import com.yoru.qingxintutor.pojo.result.PrivateMessageInfoResult;
 import com.yoru.qingxintutor.pojo.result.ReservationInfoResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
+import com.yoru.qingxintutor.websocket.PrivateChatWebSocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,6 +41,12 @@ public class ReservationService {
     private WalletService walletService;
     @Autowired
     private VoucherService voucherService;
+    @Autowired
+    private PrivateChatService chatService;
+    @Autowired
+    private PrivateChatWebSocket privateChatWebSocket;
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private NotificationService notificationService;
     @Autowired
@@ -139,6 +149,18 @@ public class ReservationService {
                 .createTime(LocalDateTime.now())
                 .build();
         reservationMapper.insert(reservation);
+
+        Long chatId = chatService.getOrCreateChat(userId, request.getTeacherId()).getId();
+        PrivateMessageInfoResult message = chatService.insert(userId, chatId,
+                MessageCreateRequest.builder()
+                        .content("学生向您发起了新的预约请求")
+                        .build()
+        );
+        try {
+            privateChatWebSocket.broadcast(chatId, objectMapper.writeValueAsString(message));
+        } catch (Exception e) {
+            log.error("Error when broadcast new reservation message to private-chat {}: {}", chatId, e.getMessage());
+        }
 
         String teacherUserId = teacherMapper.findUserIdByTeacherId(reservation.getTeacherId())
                 .orElseThrow(() -> new BusinessException("Teacher not found"));
