@@ -30,9 +30,9 @@ public class UserController {
     private GithubOauthUtils githubOauthUtils;
 
     @GetMapping("/{id}")
-    public ApiResult<UserInfoResult> getTeacher(@PathVariable("id")
-                                                @NotBlank(message = "Id cannot be composed of only whitespace characters")
-                                                String id) {
+    public ApiResult<UserInfoResult> getUser(@PathVariable("id")
+                                             @NotBlank(message = "Id cannot be composed of only whitespace characters")
+                                             String id) {
         UserInfoResult result = userService.getInfo(id);
         result.setAuth(null);
         return ApiResult.success(result);
