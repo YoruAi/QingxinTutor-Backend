@@ -65,8 +65,8 @@ public class VerificationCodeService {
         // 0. 注册用户必须未注册
         if (purpose == EmailPurpose.REGISTER && emailExists)
             return;
-        // 0. 非注册用户校验邮箱是否注册
-        if (purpose != EmailPurpose.REGISTER && !emailExists)
+        // 0. 重置密码用户校验邮箱是否注册
+        if (purpose == EmailPurpose.RESET_PASSWORD && !emailExists)
             return;
 
         // 1. 检查邮箱60秒冷却
