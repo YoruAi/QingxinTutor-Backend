@@ -104,13 +104,13 @@
         WHERE id = #{id}
     </update>
 
-    <!-- （定时）批量更新待支付订单为已取消（超时15分钟） -->
+    <!-- （定时）批量更新待支付订单为已取消（超时30分钟） -->
     <update id="cancelExpiredPendingOrders">
         UPDATE
         <include refid="tableName"/>
         SET state = 'CANCELLED'
         WHERE state = 'PENDING'
-        AND create_time &lt;= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+        AND create_time &lt;= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
     </update>
 
     <select id="hasNoPendingOrders" resultType="boolean">

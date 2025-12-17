@@ -94,7 +94,7 @@ unverified, there may be errors.
 | or
 ------> 教师看到后发起多个订单(order::pending)
     --> (optional)教师取消某一订单(order::canceled)
-    --> (optional)订单超时15分钟被自动取消(order::canceled)
+    --> (optional)订单超时30分钟被自动取消(order::canceled)
     --> (optional)预约已超过开始时间被自动取消(reservation::canceled) /end
     --> 用户看到订单后支付(order::paid)
     --> 用户取消预约(reservation::canceled)
