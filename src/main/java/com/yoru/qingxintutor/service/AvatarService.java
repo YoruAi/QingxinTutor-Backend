@@ -81,26 +81,14 @@ public class AvatarService {
             return;
         if (!icon.startsWith("/avatar/"))
             return;
-        try {
-            // 跳过默认头像
-            if (DEFAULT_AVATAR_URL.equals(icon))
-                return;
+        if (DEFAULT_AVATAR_URL.equals(icon))
+            return;
 
-            // 自动创建目录
-            Path baseDir = Paths.get(fileDir);
-            try {
-                Files.createDirectories(baseDir);
-            } catch (IOException e) {
-                throw new BusinessException("File dir not exists, please contact admin");
-            }
-            // 删除旧文件
-            try {
-                Path targetPath = baseDir.resolve(icon);
-                Files.deleteIfExists(targetPath);
-            } catch (IOException e) {
-                throw new BusinessException("Delete old file error, please contact admin");
-            }
-        } catch (Exception e) {
+        // 删除旧文件
+        try {
+            Path targetPath = Paths.get(fileDir + icon);
+            Files.deleteIfExists(targetPath);
+        } catch (IOException e) {
             log.warn("Failed to delete avatar {}: {}", icon, e.getMessage());
         }
     }
