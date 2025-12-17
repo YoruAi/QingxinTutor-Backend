@@ -27,6 +27,8 @@ public class TeacherService {
     private TeacherSubjectMapper teacherSubjectMapper;
     @Autowired
     private SubjectMapper subjectMapper;
+    @Autowired
+    private AvatarService avatarService;
 
     /**
      * 根据user_id查询该教师信息
@@ -125,10 +127,11 @@ public class TeacherService {
     /**
      * 根据user_id更新教师头像
      */
-    public void updateAvatarByUserId(String userId, String icon) {
+    public void updateAvatarByUserId(String userId, String icon, String oldIcon) {
         if (!icon.startsWith("/avatar/"))
             throw new BusinessException("Avatar URL error, please contact admin");
         teacherMapper.updateIconByUserId(userId, icon);
+        avatarService.deleteAvatar(oldIcon);
     }
 
     /**

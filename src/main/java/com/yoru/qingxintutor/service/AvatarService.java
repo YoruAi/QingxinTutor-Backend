@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,6 +73,36 @@ public class AvatarService {
 
         // 4. 返回可访问的 URL 路径
         return "/" + AVATAR_DIR + "/" + safeFileName;
+    }
+
+    @Async
+    public void deleteAvatar(String icon) {
+        if (!StringUtils.hasText(icon))
+            return;
+        if (!icon.startsWith("/avatar/"))
+            return;
+        try {
+            // 跳过默认头像
+            if (DEFAULT_AVATAR_URL.equals(icon))
+                return;
+
+            // 自动创建目录
+            Path baseDir = Paths.get(fileDir);
+            try {
+                Files.createDirectories(baseDir);
+            } catch (IOException e) {
+                throw new BusinessException("File dir not exists, please contact admin");
+            }
+            // 删除旧文件
+            try {
+                Path targetPath = baseDir.resolve(icon);
+                Files.deleteIfExists(targetPath);
+            } catch (IOException e) {
+                throw new BusinessException("Delete old file error, please contact admin");
+            }
+        } catch (Exception e) {
+            log.warn("Failed to delete avatar {}: {}", icon, e.getMessage());
+        }
     }
 
     @Async

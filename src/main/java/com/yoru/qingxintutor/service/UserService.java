@@ -25,6 +25,8 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
     @Autowired
+    private AvatarService avatarService;
+    @Autowired
     private UserEmailMapper emailMapper;
     @Autowired
     private UserGithubMapper githubMapper;
@@ -74,12 +76,15 @@ public class UserService {
     }
 
     @Transactional
-    public void updateAvatar(String id, String accessURL) {
+    public void updateAvatar(String id, String icon, String oldIcon) {
+        if (!icon.startsWith("/avatar/"))
+            throw new BusinessException("Avatar URL error, please contact admin");
         UserEntity updateUser = UserEntity.builder()
                 .id(id)
-                .icon(accessURL)
+                .icon(icon)
                 .build();
         userMapper.update(updateUser);
+        avatarService.deleteAvatar(oldIcon);
     }
 
     @Transactional

@@ -56,7 +56,7 @@ public class UserController {
     public ApiResult<UserInfoResult> uploadAvatar(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                   @RequestParam("file") MultipartFile file) {
         String accessURL = avatarService.uploadAvatar(file);
-        userService.updateAvatar(userDetails.getUser().getId(), accessURL);
+        userService.updateAvatar(userDetails.getUser().getId(), accessURL, userDetails.getUser().getIcon());
         return ApiResult.success(userService.getInfo(userDetails.getUser().getId()));
     }
 

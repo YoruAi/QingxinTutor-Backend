@@ -260,7 +260,9 @@ public class AuthService {
             avatarService.saveAvatarToLocal(githubUserId.toString(), avatarUrl)
                     .thenAccept(localUrl -> {
                         if (user.getIcon().equals(AvatarService.DEFAULT_AVATAR_URL)) {
-                            userService.updateAvatar(user.getId(), localUrl);
+                            userService.updateAvatar(user.getId(), localUrl, user.getIcon());
+                        } else {
+                            avatarService.deleteAvatar(localUrl);
                         }
                     });
             UserGithubEntity githubEntity = UserGithubEntity.builder()

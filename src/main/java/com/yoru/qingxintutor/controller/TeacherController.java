@@ -73,9 +73,8 @@ public class TeacherController {
     @PostMapping("/upload-avatar")
     public ApiResult<TeacherInfoResult> uploadAvatar(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                      @RequestParam("file") MultipartFile file) {
-
         String accessURL = avatarService.uploadAvatar(file);
-        teacherService.updateAvatarByUserId(userDetails.getUser().getId(), accessURL);
+        teacherService.updateAvatarByUserId(userDetails.getUser().getId(), accessURL, userDetails.getUser().getIcon());
         return ApiResult.success(teacherService.getInfoByUserId(userDetails.getUser().getId()));
     }
 }
