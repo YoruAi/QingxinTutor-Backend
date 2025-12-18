@@ -62,6 +62,7 @@ public class OrderService {
                 .getUsername());
     }
 
+    @Transactional(readOnly = true)
     public List<OrderInfoResult> listTeacherOrders(String teacherUserId, Long reservationId, UserOrderEntity.State state) {
         Long teacherId = teacherMapper.findTeacherIdByUserId(teacherUserId)
                 .orElseThrow(() -> new BusinessException("Teacher not found"));

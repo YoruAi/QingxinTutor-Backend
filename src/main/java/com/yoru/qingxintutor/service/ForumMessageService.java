@@ -9,6 +9,7 @@ import com.yoru.qingxintutor.pojo.entity.ForumMessageEntity;
 import com.yoru.qingxintutor.pojo.result.ForumMessageInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,16 +23,19 @@ public class ForumMessageService {
     @Autowired
     private UserMapper userMapper;
 
+    @Transactional(readOnly = true)
     public List<ForumMessageInfoResult> listAllByUserId(String userId) {
+        String username = userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"))
+                .getUsername();
         return forumMessageMapper.findByUserId(userId)
                 .stream()
                 .map(forumMessage -> entityToResult(forumMessage,
                         forumMapper.findById(forumMessage.getForumId())
                                 .orElseThrow(() -> new BusinessException("Forum not found"))
                                 .getName(),
-                        userMapper.findById(userId)
-                                .orElseThrow(() -> new BusinessException("User not found"))
-                                .getUsername()))
+                        username
+                ))
                 .toList();
     }
 
