@@ -54,6 +54,7 @@ public class ReservationService {
     @Autowired
     private EmailUtils emailUtils;
 
+    @Transactional(readOnly = true)
     public List<ReservationInfoResult> listStudentReservations(String userId, ReservationEntity.State state) {
         String username = userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found"))
@@ -71,6 +72,7 @@ public class ReservationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ReservationInfoResult> listTeacherReservations(String teacherUserId, ReservationEntity.State state) {
         Long teacherId = teacherMapper.findTeacherIdByUserId(teacherUserId)
                 .orElseThrow(() -> new BusinessException("Teacher not found"));

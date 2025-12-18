@@ -40,6 +40,7 @@ public class StudyPlanService {
     @Autowired
     private EmailUtils emailUtils;
 
+    @Transactional(readOnly = true)
     public List<StudyPlanInfoResult> listAll(String userId, Boolean completed) {
         return studyPlanMapper.findByUserId(userId, completed)
                 .stream()

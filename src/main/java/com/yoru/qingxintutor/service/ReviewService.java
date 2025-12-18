@@ -54,14 +54,16 @@ public class ReviewService {
      * 根据id查询该教师所有评论
      */
     public PageInfo<ReviewInfoResult> findReviewsByTeacherId(Long teacherId, Integer pageNum, Integer pageSize) {
-        if (!teacherMapper.existsById(teacherId))
-            throw new BusinessException("Teacher not found");
+        String teacherName = teacherMapper.findNameById(teacherId)
+                .orElseThrow(() -> new BusinessException("Teacher not found"));
         PageHelper.startPage(pageNum, pageSize);
         List<ReviewInfoResult> list = teacherReviewMapper.findByTeacherId(teacherId)
                 .stream()
-                .map(entity -> entityToResult(entity, userMapper.findById(entity.getUserId())
-                        .orElseThrow(() -> new BusinessException("User not found"))
-                        .getUsername(), teacherService.getNameById(entity.getTeacherId())))
+                .map(entity -> entityToResult(entity,
+                        userMapper.findById(entity.getUserId())
+                                .orElseThrow(() -> new BusinessException("User not found"))
+                                .getUsername(),
+                        teacherName))
                 .toList();
         return new PageInfo<>(list);
     }

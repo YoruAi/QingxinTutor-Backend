@@ -39,13 +39,15 @@ public class ForumMessageService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ForumMessageInfoResult> listAllByForumId(Long forumId) {
+        String forumName = forumMapper.findById(forumId)
+                .orElseThrow(() -> new BusinessException("Forum not found"))
+                .getName();
         return forumMessageMapper.findByForumId(forumId)
                 .stream()
                 .map(forumMessage -> entityToResult(forumMessage,
-                        forumMapper.findById(forumId)
-                                .orElseThrow(() -> new BusinessException("Forum not found"))
-                                .getName(),
+                        forumName,
                         userMapper.findById(forumMessage.getUserId())
                                 .orElseThrow(() -> new BusinessException("User not found"))
                                 .getUsername()))
@@ -82,13 +84,15 @@ public class ForumMessageService {
         return entityToResult(forumMessage, forumName, username);
     }
 
+    @Transactional(readOnly = true)
     public List<ForumMessageInfoResult> listWeeklyByForumId(Long forumId) {
+        String forumName = forumMapper.findById(forumId)
+                .orElseThrow(() -> new BusinessException("Forum not found"))
+                .getName();
         return forumMessageMapper.findByWeeklyForumId(forumId)
                 .stream()
                 .map(forumMessage -> entityToResult(forumMessage,
-                        forumMapper.findById(forumId)
-                                .orElseThrow(() -> new BusinessException("Forum not found"))
-                                .getName(),
+                        forumName,
                         userMapper.findById(forumMessage.getUserId())
                                 .orElseThrow(() -> new BusinessException("User not found"))
                                 .getUsername()))

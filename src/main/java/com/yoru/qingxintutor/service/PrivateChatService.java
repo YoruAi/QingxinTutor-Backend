@@ -215,6 +215,7 @@ public class PrivateChatService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<PrivateMessageInfoResult> listMessagesByUserId(String userId) {
         UserEntity user = userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found"));
