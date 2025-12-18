@@ -130,7 +130,9 @@ public class TeacherService {
     public void updateAvatarByUserId(String userId, String icon, String oldIcon) {
         if (!icon.startsWith("/avatar/"))
             throw new BusinessException("Avatar URL error, please contact admin");
-        teacherMapper.updateIconByUserId(userId, icon);
+        Long teacherId = teacherMapper.findTeacherIdByUserId(userId)
+                .orElseThrow(() -> new BusinessException("Teacher not found"));
+        teacherMapper.updateIconById(teacherId, icon);
         avatarService.deleteAvatar(oldIcon);
     }
 

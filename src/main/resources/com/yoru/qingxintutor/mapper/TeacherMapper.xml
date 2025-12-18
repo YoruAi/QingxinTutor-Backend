@@ -160,43 +160,6 @@
         WHERE id = #{id}
     </update>
 
-    <!-- 根据user_id更新 -->
-    <update id="updateByUserId" parameterType="com.yoru.qingxintutor.pojo.entity.TeacherEntity">
-        UPDATE
-        <include refid="tableName"/>
-        <set>
-            <if test="nickname != null">
-                nickname = #{nickname},
-            </if>
-            <if test="name != null and name != ''">
-                name = #{name},
-            </if>
-            <if test="gender != null">
-                gender = #{gender},
-            </if>
-            <if test="birthDate != null">
-                birth_date = #{birthDate},
-            </if>
-            <if test="icon != null">
-                icon = #{icon},
-            </if>
-            <if test="address != null">
-                address = #{address},
-            </if>
-            <if test="teachingExperience != null">
-                teaching_experience = #{teachingExperience},
-            </if>
-            <if test="description != null">
-                description = #{description},
-            </if>
-            <if test="grade != null">
-                grade = #{grade},
-            </if>
-            update_time = CURRENT_TIMESTAMP
-        </set>
-        WHERE user_id = #{userId}
-    </update>
-
     <!-- 查询是否存在 -->
     <select id="existsById" resultType="boolean">
         SELECT EXISTS(SELECT 1 FROM teacher WHERE id = #{id})
@@ -446,9 +409,9 @@
         WHERE id = #{id}
     </select>
 
-    <update id="updateIconByUserId">
+    <update id="updateIconById">
         UPDATE teacher
         SET icon = #{icon}
-        WHERE user_id = #{userId}
+        WHERE id = #{id}
     </update>
 </mapper>

@@ -16,9 +16,7 @@ public interface TeacherMapper {
 
     int update(TeacherEntity teacher);
 
-    int updateByUserId(TeacherEntity teacher);
-
-    int updateIconByUserId(@Param("userId") String userId, @Param("icon") String icon);
+    int updateIconById(@Param("id") Long id, @Param("icon") String icon);
 
     Optional<String> findNameById(@Param("id") Long id);
 
