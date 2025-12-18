@@ -2,7 +2,7 @@ package com.yoru.qingxintutor.annotation;
 
 import java.lang.annotation.*;
 
-// See com.yoru.qingxintutor.annotation.AntiReplayAspect
+// See com.yoru.qingxintutor.aop.AntiReplayAspect
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
