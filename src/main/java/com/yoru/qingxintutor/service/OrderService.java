@@ -74,11 +74,12 @@ public class OrderService {
     }
 
     public List<OrderInfoResult> listStudentOrders(String userId, Long reservationId, UserOrderEntity.State state) {
+        String username = userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"))
+                .getUsername();
         return orderMapper.selectOrdersByUserId(userId, reservationId, state)
                 .stream()
-                .map(order -> entityToResult(order, userMapper.findById(order.getUserId())
-                        .orElseThrow(() -> new BusinessException("User not found"))
-                        .getUsername()))
+                .map(order -> entityToResult(order, username))
                 .toList();
     }
 
@@ -118,10 +119,7 @@ public class OrderService {
                 )
         );
 
-
-        return entityToResult(order, userMapper.findById(order.getUserId())
-                .orElseThrow(() -> new BusinessException("User not found"))
-                .getUsername());
+        return entityToResult(order, student.getUsername());
     }
 
     @Transactional
