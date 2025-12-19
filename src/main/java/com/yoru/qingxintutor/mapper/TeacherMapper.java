@@ -42,8 +42,6 @@ public interface TeacherMapper {
 
     List<TeacherInfoResult> findBySubjectName(@Param("subjectName") String subjectName);
 
-    List<TeacherInfoResult> findAll();
-
     List<Long> findExcellentIds();
 
     List<Long> findIdsByCriteria(TeacherSearchRequest request);

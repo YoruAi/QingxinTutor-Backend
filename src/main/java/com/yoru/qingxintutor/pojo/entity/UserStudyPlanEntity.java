@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Builder
 public class UserStudyPlanEntity {
     private Long id;                // BIGINT AUTO_INCREMENT PRIMARY KEY
-    @JsonIgnore
     private String userId;          // CHAR(36) NOT NULL, REFERENCES user(id)
     private Long subjectId;         // BIGINT NOT NULL, REFERENCES subject(id)
     private String title;           // VARCHAR(100) NOT NULL

@@ -293,16 +293,6 @@
         ORDER BY trv.avg_rating DESC, t.create_time DESC, s.id
     </select>
 
-    <!-- findAll -->
-    <select id="findAll" resultMap="TeacherInfoResultMap">
-        SELECT
-        <include refid="teacherInfoColumns"/>
-        FROM teacher t
-        <include refid="avgRatingSubQuery"/>
-        <include refid="subjectJoin"/>
-        ORDER BY trv.avg_rating DESC, t.create_time DESC, s.id
-    </select>
-
     <!-- findExcellentIds, 用于筛选分页 -->
     <select id="findExcellentIds" resultType="long">
         SELECT
@@ -319,29 +309,12 @@
         ORDER BY trv.avg_rating DESC, t.id
     </select>
 
-    <!-- 只查老师ID，用于完整分页 -->
+    <!-- findAllIds，用于完整分页 -->
     <select id="findAllIds" resultType="long">
-        SELECT id FROM teacher ORDER BY id
-    </select>
-
-    <!-- 根据ID查完整信息 -->
-    <select id="findByIds" resultMap="TeacherInfoResultMap">
-        SELECT
-        <include refid="teacherInfoColumns"/>
+        SELECT id
         FROM teacher t
         <include refid="avgRatingSubQuery"/>
-        <include refid="subjectJoin"/>
-        WHERE t.id IN
-        <foreach collection="list" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-        ORDER BY trv.avg_rating DESC, t.id, s.id
-    </select>
-
-    <!-- count 查询（只统计老师数量） -->
-    <select id="countAll" resultType="long">
-        SELECT COUNT(*) FROM
-        <include refid="tableName"/>
+        ORDER BY trv.avg_rating DESC, t.id
     </select>
 
     <!-- 条件搜索 -->
@@ -350,6 +323,7 @@
         SELECT
         t.id
         FROM teacher t
+        <include refid="avgRatingSubQuery"/>
         <where>
             <if test="text != null and !text.isEmpty()">
                 AND (
@@ -384,6 +358,31 @@
                 AND t.gender = #{gender}
             </if>
         </where>
+        ORDER BY trv.avg_rating DESC, t.id
+    </select>
+
+    <!-- 根据ID查完整信息 -->
+    <select id="findByIds" resultMap="TeacherInfoResultMap">
+        SELECT
+        <include refid="teacherInfoColumns"/>
+        FROM teacher t
+        <include refid="avgRatingSubQuery"/>
+        <include refid="subjectJoin"/>
+        WHERE t.id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY FIELD(t.id,
+        <foreach collection="list" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+    <!-- count 查询（只统计老师数量） -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM
+        <include refid="tableName"/>
     </select>
 
     <select id="findByUserId" resultMap="TeacherInfoResultMap">

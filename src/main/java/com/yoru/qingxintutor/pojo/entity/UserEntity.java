@@ -20,7 +20,6 @@ public class UserEntity {
     private String nickname;        // VARCHAR(50)
     private String icon;            // VARCHAR(255)
     private String address;         // VARCHAR(255)
-    @JsonIgnore
     private String passwdHash;      // VARCHAR(255) NOT NULL (bcrypt 哈希)
     private Role role;              // ENUM('STUDENT', 'TEACHER') NOT NULL
     @JsonIgnore
