@@ -83,4 +83,13 @@ public class ReviewController {
                                                                    @RequestParam(defaultValue = "6") Integer pageSize) {
         return ApiResult.success(reviewService.findReviewsByTeacherId(teacherId, pageNum, pageSize));
     }
+
+    @RequireStudent
+    @GetMapping("/teacher/{teacherId}/my")
+    public ApiResult<ReviewInfoResult> getTeacherReviewByStudent(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                 @PathVariable("teacherId")
+                                                                 @Min(value = 1, message = "TeacherId must be a positive number")
+                                                                 Long teacherId) {
+        return ApiResult.success(reviewService.findReviewsByTeacherIdAndStudentId(teacherId, userDetails.getUser().getId()));
+    }
 }

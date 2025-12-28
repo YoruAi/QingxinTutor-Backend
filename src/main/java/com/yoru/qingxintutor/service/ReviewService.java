@@ -68,6 +68,21 @@ public class ReviewService {
         return new PageInfo<>(list);
     }
 
+    /**
+     * 根据id查询该教师我的评论
+     */
+    public ReviewInfoResult findReviewsByTeacherIdAndStudentId(Long teacherId, String studentId) {
+        String teacherName = teacherMapper.findNameById(teacherId)
+                .orElseThrow(() -> new BusinessException("Teacher not found"));
+        return reviewMapper.findByUserIdAndTeacherId(studentId, teacherId)
+                .map(entity -> entityToResult(entity,
+                        userMapper.findById(entity.getUserId())
+                                .orElseThrow(() -> new BusinessException("User not found"))
+                                .getUsername(),
+                        teacherName))
+                .orElse(null);
+    }
+
     @Transactional
     public ReviewInfoResult create(String userId, ReviewCreateRequest request) {
         String teacherName = teacherService.getNameById(request.getTeacherId());
