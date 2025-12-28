@@ -1,19 +1,19 @@
-package com.yoru.qingxintutor.config.convert;
+package com.yoru.qingxintutor.enums.convert;
 
-import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
+import com.yoru.qingxintutor.pojo.entity.UserOrderEntity;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReservationStateConvert implements Converter<String, ReservationEntity.State> {
+public class OrderStateConvert implements Converter<String, UserOrderEntity.State> {
     @SuppressWarnings({"NullableProblems", "ConstantValue"})
     @Override
-    public ReservationEntity.State convert(String source) {
+    public UserOrderEntity.State convert(String source) {
         if (source == null || source.isBlank()) {
             return null;
         }
         try {
-            return ReservationEntity.State.valueOf(source.trim().toUpperCase());
+            return UserOrderEntity.State.valueOf(source.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid state value");
         }

@@ -1,4 +1,4 @@
-package com.yoru.qingxintutor.config.convert;
+package com.yoru.qingxintutor.enums.convert;
 
 import com.yoru.qingxintutor.enums.NotificationType;
 import org.springframework.core.convert.converter.Converter;
