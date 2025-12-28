@@ -79,10 +79,12 @@ public class StudyPlanService {
         SubjectEntity subject = subjectMapper.findBySubjectName(subjectName)
                 .orElseThrow(() -> new BusinessException("Subject not found"));
 
+        if (request.getReminderTime().isAfter(request.getTargetCompletionTime()))
+            throw new BusinessException("ReminderTime must be after targetCompletionTime.");
+
         // 检查是否已存在同名学习计划（唯一性约束）
-        if (studyPlanMapper.existsByUserIdAndTitle(userId, request.getTitle())) {
+        if (studyPlanMapper.existsByUserIdAndTitle(userId, request.getTitle()))
             throw new BusinessException("Plan " + request.getTitle() + " has been created by you");
-        }
 
         // 创建并保存实体
         UserStudyPlanEntity entity = UserStudyPlanEntity.builder()
@@ -113,6 +115,10 @@ public class StudyPlanService {
                 .orElseThrow(() -> new BusinessException("Study plan not found"));
         if (studyPlan.getCompleted().equals(Boolean.TRUE))
             throw new BusinessException("Study plan cannot be revised because it's completed");
+        if (request.getReminderTime() != null &&
+                ((request.getTargetCompletionTime() != null && request.getReminderTime().isAfter(request.getTargetCompletionTime()))
+                        || (request.getTargetCompletionTime() == null && request.getReminderTime().isAfter(studyPlan.getTargetCompletionTime()))))
+            throw new BusinessException("ReminderTime must be after targetCompletionTime.");
         if (!userId.equals(studyPlan.getUserId()))
             throw new BusinessException("Study plan not found");
 
@@ -146,7 +152,7 @@ public class StudyPlanService {
                 .orElseThrow(() -> new BusinessException("Study plan not found"));
         if (!userId.equals(studyPlan.getUserId()))
             throw new BusinessException("Study plan not found");
-        if (studyPlan.getCompleted())
+        if (studyPlan.getCompleted().equals(Boolean.TRUE))
             throw new BusinessException("Study plan has been completed");
         studyPlan.setCompleted(true);
         studyPlanMapper.update(studyPlan);
