@@ -5,12 +5,12 @@ import com.yoru.qingxintutor.mapper.SubjectMapper;
 import com.yoru.qingxintutor.mapper.UserEmailMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
 import com.yoru.qingxintutor.mapper.UserStudyPlanMapper;
-import com.yoru.qingxintutor.pojo.request.StudyPlanCreateRequest;
-import com.yoru.qingxintutor.pojo.request.StudyPlanUpdateRequest;
 import com.yoru.qingxintutor.pojo.entity.SubjectEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserStudyPlanEntity;
+import com.yoru.qingxintutor.pojo.request.StudyPlanCreateRequest;
+import com.yoru.qingxintutor.pojo.request.StudyPlanUpdateRequest;
 import com.yoru.qingxintutor.pojo.result.StudyPlanInfoResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -116,8 +117,8 @@ public class StudyPlanService {
         if (studyPlan.getCompleted().equals(Boolean.TRUE))
             throw new BusinessException("Study plan cannot be revised because it's completed");
         if (request.getReminderTime() != null &&
-                ((request.getTargetCompletionTime() != null && request.getReminderTime().isAfter(request.getTargetCompletionTime()))
-                        || (request.getTargetCompletionTime() == null && request.getReminderTime().isAfter(studyPlan.getTargetCompletionTime()))))
+                request.getReminderTime().isAfter(Objects.requireNonNullElse(request.getTargetCompletionTime(),
+                        studyPlan.getTargetCompletionTime())))
             throw new BusinessException("ReminderTime must be after targetCompletionTime.");
         if (!userId.equals(studyPlan.getUserId()))
             throw new BusinessException("Study plan not found");
