@@ -43,7 +43,7 @@ public class AnalyticsService {
     private TeacherMapper teacherMapper;
     @Autowired
     private TeacherReviewMapper reviewMapper;
-    
+
     private final String model;
     private final ArkService arkService;
 
@@ -313,7 +313,7 @@ public class AnalyticsService {
                     要求：
                     1. 进行情感分析和关键词提取；
                     2. 输出格式如下：
-                       “本周关键词：耐心（+12次）、讲解清晰（+8次）、语速快（-3次）”
+                       “评价关键词：耐心（+12次）、讲解清晰（+8次）、语速快（-3次）”
                        “建议：适当放慢语速，尤其在讲难题时。”
                     3. 正面词用“+次数”，负面词用“-次数”；
                     4. 给出的建议需具体、可操作；
