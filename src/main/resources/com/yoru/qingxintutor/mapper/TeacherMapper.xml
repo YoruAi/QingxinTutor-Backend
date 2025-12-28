@@ -319,7 +319,7 @@
 
     <!-- 条件搜索 -->
     <select id="findIdsByCriteria" resultType="long"
-            parameterType="com.yoru.qingxintutor.pojo.dto.request.TeacherSearchRequest">
+            parameterType="com.yoru.qingxintutor.pojo.request.TeacherSearchRequest">
         SELECT
         t.id
         FROM teacher t

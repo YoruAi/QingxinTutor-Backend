@@ -2,7 +2,7 @@ package com.yoru.qingxintutor.controller;
 
 import com.yoru.qingxintutor.annotation.AntiReplay;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.*;
+import com.yoru.qingxintutor.pojo.request.*;
 import com.yoru.qingxintutor.pojo.result.UserAuthResult;
 import com.yoru.qingxintutor.service.AuthService;
 import com.yoru.qingxintutor.service.VerificationCodeService;

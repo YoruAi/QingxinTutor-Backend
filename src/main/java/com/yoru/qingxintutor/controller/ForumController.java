@@ -3,7 +3,7 @@ package com.yoru.qingxintutor.controller;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
+import com.yoru.qingxintutor.pojo.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.ForumEntity;
 import com.yoru.qingxintutor.pojo.result.ForumMessageInfoResult;
 import com.yoru.qingxintutor.service.ForumMessageService;

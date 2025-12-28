@@ -3,7 +3,7 @@ package com.yoru.qingxintutor.service;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.UserWalletMapper;
 import com.yoru.qingxintutor.mapper.WalletRechargeOrderMapper;
-import com.yoru.qingxintutor.pojo.dto.request.RechargeRequest;
+import com.yoru.qingxintutor.pojo.request.RechargeRequest;
 import com.yoru.qingxintutor.pojo.entity.UserWalletEntity;
 import com.yoru.qingxintutor.pojo.entity.WalletRechargeOrderEntity;
 import com.yoru.qingxintutor.pojo.result.RechargeInfoResult;

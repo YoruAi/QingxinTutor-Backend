@@ -1,6 +1,6 @@
 package com.yoru.qingxintutor.mapper;
 
-import com.yoru.qingxintutor.pojo.dto.request.TeacherSearchRequest;
+import com.yoru.qingxintutor.pojo.request.TeacherSearchRequest;
 import com.yoru.qingxintutor.pojo.entity.TeacherEntity;
 import com.yoru.qingxintutor.pojo.result.TeacherInfoResult;
 import org.apache.ibatis.annotations.Mapper;

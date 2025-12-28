@@ -2,8 +2,8 @@ package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.*;
-import com.yoru.qingxintutor.pojo.dto.request.OrderCreateRequest;
-import com.yoru.qingxintutor.pojo.dto.request.OrderPayRequest;
+import com.yoru.qingxintutor.pojo.request.OrderCreateRequest;
+import com.yoru.qingxintutor.pojo.request.OrderPayRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;

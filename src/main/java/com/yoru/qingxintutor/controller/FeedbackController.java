@@ -2,7 +2,7 @@ package com.yoru.qingxintutor.controller;
 
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.FeedbackCreateRequest;
+import com.yoru.qingxintutor.pojo.request.FeedbackCreateRequest;
 import com.yoru.qingxintutor.pojo.result.FeedbackInfoResult;
 import com.yoru.qingxintutor.service.FeedbackService;
 import jakarta.validation.Valid;

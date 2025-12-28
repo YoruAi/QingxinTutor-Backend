@@ -1,4 +1,4 @@
-package com.yoru.qingxintutor.pojo.dto.request;
+package com.yoru.qingxintutor.pojo.request;
 
 import com.yoru.qingxintutor.annotation.StrongPassword;
 import jakarta.validation.constraints.Email;

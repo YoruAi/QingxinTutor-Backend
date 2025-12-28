@@ -2,7 +2,7 @@ package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.AppFeedbackMapper;
-import com.yoru.qingxintutor.pojo.dto.request.FeedbackCreateRequest;
+import com.yoru.qingxintutor.pojo.request.FeedbackCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.AppFeedbackEntity;
 import com.yoru.qingxintutor.pojo.result.FeedbackInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;

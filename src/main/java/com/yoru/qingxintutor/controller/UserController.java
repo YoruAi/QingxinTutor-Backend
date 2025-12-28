@@ -2,10 +2,10 @@ package com.yoru.qingxintutor.controller;
 
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.UserUpdateEmailRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserUpdateGithubRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserUpdatePasswordRequest;
-import com.yoru.qingxintutor.pojo.dto.request.UserUpdateRequest;
+import com.yoru.qingxintutor.pojo.request.UserUpdateEmailRequest;
+import com.yoru.qingxintutor.pojo.request.UserUpdateGithubRequest;
+import com.yoru.qingxintutor.pojo.request.UserUpdatePasswordRequest;
+import com.yoru.qingxintutor.pojo.request.UserUpdateRequest;
 import com.yoru.qingxintutor.pojo.result.UserInfoResult;
 import com.yoru.qingxintutor.service.AvatarService;
 import com.yoru.qingxintutor.service.UserService;

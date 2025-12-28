@@ -4,7 +4,7 @@ import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.ForumMapper;
 import com.yoru.qingxintutor.mapper.ForumMessageMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
-import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
+import com.yoru.qingxintutor.pojo.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.ForumMessageEntity;
 import com.yoru.qingxintutor.pojo.result.ForumMessageInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;

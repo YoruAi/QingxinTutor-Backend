@@ -6,7 +6,7 @@ import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.PrivateChatMapper;
 import com.yoru.qingxintutor.mapper.TeacherMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
-import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
+import com.yoru.qingxintutor.pojo.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.PrivateChatEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.result.PrivateMessageInfoResult;

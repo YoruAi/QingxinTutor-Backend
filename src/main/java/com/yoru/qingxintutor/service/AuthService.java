@@ -2,11 +2,11 @@ package com.yoru.qingxintutor.service;
 
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.mapper.*;
-import com.yoru.qingxintutor.pojo.dto.request.*;
 import com.yoru.qingxintutor.pojo.entity.TeacherEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEmailEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.entity.UserGithubEntity;
+import com.yoru.qingxintutor.pojo.request.*;
 import com.yoru.qingxintutor.pojo.result.UserAuthResult;
 import com.yoru.qingxintutor.utils.EmailUtils;
 import com.yoru.qingxintutor.utils.GithubOauthUtils;

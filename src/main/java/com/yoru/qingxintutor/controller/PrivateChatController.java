@@ -4,7 +4,7 @@ import com.yoru.qingxintutor.annotation.auth.RequireStudent;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
+import com.yoru.qingxintutor.pojo.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.result.PrivateChatInfoResult;
 import com.yoru.qingxintutor.pojo.result.PrivateMessageInfoResult;
 import com.yoru.qingxintutor.service.PrivateChatService;

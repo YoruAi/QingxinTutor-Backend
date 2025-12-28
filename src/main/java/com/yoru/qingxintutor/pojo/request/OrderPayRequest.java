@@ -1,4 +1,4 @@
-package com.yoru.qingxintutor.pojo.dto.request;
+package com.yoru.qingxintutor.pojo.request;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

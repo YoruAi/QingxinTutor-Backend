@@ -4,7 +4,7 @@ import com.yoru.qingxintutor.annotation.AntiReplay;
 import com.yoru.qingxintutor.annotation.auth.RequireStudent;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.RechargeRequest;
+import com.yoru.qingxintutor.pojo.request.RechargeRequest;
 import com.yoru.qingxintutor.pojo.entity.WalletRechargeOrderEntity;
 import com.yoru.qingxintutor.pojo.result.RechargeInfoResult;
 import com.yoru.qingxintutor.pojo.result.WalletInfoResult;

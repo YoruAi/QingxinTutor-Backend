@@ -5,7 +5,7 @@ import com.yoru.qingxintutor.annotation.auth.RequireTeacher;
 import com.yoru.qingxintutor.exception.BusinessException;
 import com.yoru.qingxintutor.filter.CustomUserDetails;
 import com.yoru.qingxintutor.pojo.ApiResult;
-import com.yoru.qingxintutor.pojo.dto.request.ReservationCreateRequest;
+import com.yoru.qingxintutor.pojo.request.ReservationCreateRequest;
 import com.yoru.qingxintutor.pojo.entity.ReservationEntity;
 import com.yoru.qingxintutor.pojo.entity.UserEntity;
 import com.yoru.qingxintutor.pojo.result.ReservationInfoResult;

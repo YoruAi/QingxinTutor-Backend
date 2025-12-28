@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoru.qingxintutor.config.SpringAwareConfigurator;
 import com.yoru.qingxintutor.mapper.ForumMapper;
 import com.yoru.qingxintutor.mapper.UserMapper;
-import com.yoru.qingxintutor.pojo.dto.request.MessageCreateRequest;
+import com.yoru.qingxintutor.pojo.request.MessageCreateRequest;
 import com.yoru.qingxintutor.pojo.result.ForumMessageInfoResult;
 import com.yoru.qingxintutor.service.ForumMessageService;
 import com.yoru.qingxintutor.utils.JwtUtils;
