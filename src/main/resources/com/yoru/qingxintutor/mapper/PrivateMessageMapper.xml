@@ -45,7 +45,7 @@
         FROM
         <include refid="tableName"/>
         WHERE chat_id = #{chatId}
-        ORDER BY create_time DESC
+        ORDER BY create_time DESC, id DESC
     </select>
 
     <select id="findById" resultMap="PrivateMessageResultMap">
