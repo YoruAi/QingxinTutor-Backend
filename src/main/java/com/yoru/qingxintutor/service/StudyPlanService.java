@@ -111,6 +111,8 @@ public class StudyPlanService {
 
         UserStudyPlanEntity studyPlan = studyPlanMapper.findById(id)
                 .orElseThrow(() -> new BusinessException("Study plan not found"));
+        if (studyPlan.getCompleted().equals(Boolean.TRUE))
+            throw new BusinessException("Study plan cannot be revised because it's completed");
         if (!userId.equals(studyPlan.getUserId()))
             throw new BusinessException("Study plan not found");
 
